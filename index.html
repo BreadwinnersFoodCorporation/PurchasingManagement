@@ -1,20 +1,112 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <meta charset="utf-8">
-    <title>Purchasing Management v13.4</title>
-    <style>
-        html, body, iframe {
-            margin: 0;
-            padding: 0;
-            width: 100%;
-            height: 100%;
-            border: none;
-            overflow: hidden;
-        }
-    </style>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Purchasing Management</title>
+  <style>
+    html, body { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; background: #0b0706; }
+    iframe { display: block; width: 100%; height: 100%; border: none; }
+
+    /* Floating "Update available" button: stays until clicked */
+    #updateBtn[hidden] { display: none; }
+    #updateBtn {
+      position: fixed; right: 22px; bottom: 22px; z-index: 2147483647;
+      display: flex; align-items: center; gap: 12px; padding: 11px 18px 11px 12px;
+      border: 1px solid rgba(255, 255, 255, 0.25); border-radius: 16px; cursor: pointer;
+      font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif; color: #fff; text-align: left;
+      background: linear-gradient(135deg, #C26112, #e5001c);
+      box-shadow: 0 14px 34px -8px rgba(229, 0, 28, 0.6);
+      animation: ubIn 0.6s cubic-bezier(0.2, 0.8, 0.2, 1) both, ubPulse 2.4s ease-in-out 0.6s infinite;
+    }
+    #updateBtn:hover { filter: brightness(1.08); transform: translateY(-2px); }
+    #updateBtn .ub-icon {
+      width: 34px; height: 34px; flex-shrink: 0; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      background: rgba(255, 255, 255, 0.18); font-size: 18px; font-weight: 900;
+    }
+    #updateBtn:hover .ub-icon, #updateBtn.loading .ub-icon { animation: ubSpin 0.9s linear infinite; }
+    #updateBtn .ub-text { display: flex; flex-direction: column; line-height: 1.25; }
+    #updateBtn .ub-text strong { font-size: 13.5px; font-weight: 800; letter-spacing: 0.2px; }
+    #updateBtn .ub-text small { font-size: 11px; font-weight: 600; opacity: 0.85; }
+    #updateBtn.loading { pointer-events: none; animation: none; opacity: 0.9; }
+
+    @keyframes ubIn { from { opacity: 0; transform: translateY(20px) scale(0.96); } to { opacity: 1; transform: none; } }
+    @keyframes ubPulse { 0%, 100% { box-shadow: 0 14px 34px -8px rgba(229, 0, 28, 0.6), 0 0 0 0 rgba(229, 0, 28, 0.45); } 50% { box-shadow: 0 14px 34px -8px rgba(229, 0, 28, 0.6), 0 0 0 10px rgba(229, 0, 28, 0); } }
+    @keyframes ubSpin { to { transform: rotate(360deg); } }
+    @media (max-width: 600px) { #updateBtn { right: 14px; bottom: 14px; } }
+  </style>
 </head>
 <body>
-    <iframe src="https://script.google.com/macros/s/AKfycbzzYGgiO4dDb4nOONkv0zsH0Bj0D52x2-6yLBWZScA31hkq8ZDoyzcqhZF-uzUbh42kmg/exec"></iframe>
+  <iframe id="appFrame" title="Purchasing Management"></iframe>
+
+  <button id="updateBtn" type="button" onclick="applyUpdate()" hidden>
+    <span class="ub-icon">&#10227;</span>
+    <span class="ub-text">
+      <strong id="ubTitle">Update available</strong>
+      <small>Save your work, then click to update</small>
+    </span>
+  </button>
+
+  <script>
+    // Used only if version.json cannot be read
+    const FALLBACK = {
+      version: '13.4',
+      url: 'https://script.google.com/macros/s/AKfycbwj8-bNiMEk3AAOo-MAADdJsz5urVTlB7bgfAtjQwfKcXyKaahOOB_Bv7mQW3YNv1HC2Q/exec'
+    };
+    const CHECK_EVERY_MS = 60 * 1000; // look for a new version every minute
+
+    let running = null;   // the version this tab is showing
+    let pending = null;   // the newer version waiting to be applied
+
+    function setTitle(text) { document.title = text; }
+
+    async function fetchVersion() {
+      const res = await fetch('version.json?t=' + Date.now(), { cache: 'no-store' });
+      if (!res.ok) throw new Error('HTTP ' + res.status);
+      const data = await res.json();
+      if (!data.version || !data.url) throw new Error('version.json needs "version" and "url"');
+      return { version: String(data.version), url: String(data.url) };
+    }
+
+    function withTimeout(promise, ms) {
+      return Promise.race([promise, new Promise((_, reject) => setTimeout(() => reject(new Error('timeout')), ms))]);
+    }
+
+    function start(cfg) {
+      running = cfg;
+      setTitle('Purchasing Management v' + cfg.version);
+      document.getElementById('appFrame').src = cfg.url;
+    }
+
+    async function checkForUpdate() {
+      if (!running || pending) return;
+      try {
+        const latest = await fetchVersion();
+        if (latest.version !== running.version || latest.url !== running.url) {
+          pending = latest;
+          document.getElementById('ubTitle').textContent = 'Update available \u00b7 v' + latest.version;
+          document.getElementById('updateBtn').hidden = false;
+          setTitle('\u{1F504} Update to v' + latest.version + ' \u00b7 Purchasing Management v' + running.version);
+        }
+      } catch (e) { /* offline or GitHub busy: try again next minute */ }
+    }
+
+    function applyUpdate() {
+      const btn = document.getElementById('updateBtn');
+      btn.classList.add('loading');
+      document.getElementById('ubTitle').textContent = 'Updating\u2026';
+      const v = pending ? pending.version : String(Date.now());
+      setTimeout(() => location.replace(location.pathname + '?v=' + encodeURIComponent(v)), 300);
+    }
+
+    (async function boot() {
+      let cfg = FALLBACK;
+      try { cfg = await withTimeout(fetchVersion(), 4000); } catch (e) {}
+      start(cfg);
+      setInterval(checkForUpdate, CHECK_EVERY_MS);
+      document.addEventListener('visibilitychange', () => { if (!document.hidden) checkForUpdate(); });
+    })();
+  </script>
 </body>
 </html>
