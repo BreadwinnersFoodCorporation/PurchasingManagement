@@ -1,0 +1,1418 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="theme-color" content="#0b0706">
+  <title>Asset Management v1.0</title>
+  <script src="config.js"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0b0706;
+  --bg-2: #110b09;
+  --surface: #17100d;
+  --surface-2: #1f1612;
+  --raise: #2a1e19;
+  --line: rgba(255, 224, 204, 0.08);
+  --line-2: rgba(255, 224, 204, 0.16);
+  --text: #f6ede6;
+  --muted: #ab988c;
+  --dim: #7e6b61;
+  --orange: #C26112;
+  --orange-2: #e27a22;
+  --red: #e5001c;
+  --grad: linear-gradient(135deg, #C26112 0%, #e5001c 100%);
+  --ok: #4cc490;
+  --warn: #eaa640;
+  --info: #6faae8;
+  --bad: #f0596e;
+  --off: #8b807a;
+  --r-sm: 8px;
+  --r: 12px;
+  --r-lg: 18px;
+  --shadow: 0 20px 44px -20px rgba(0, 0, 0, 0.8);
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; min-height: 100%; }
+body {
+  font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  font-size: 14px; line-height: 1.5; color: var(--text);
+  background:
+    radial-gradient(900px 520px at -8% -18%, rgba(194, 97, 18, 0.20), transparent 62%),
+    radial-gradient(700px 420px at 110% 110%, rgba(229, 0, 28, 0.10), transparent 60%),
+    var(--bg);
+  background-attachment: fixed;
+  -webkit-font-smoothing: antialiased;
+}
+[hidden] { display: none !important; }
+a { color: var(--orange-2); text-decoration: none; }
+a:hover { text-decoration: underline; }
+h1, h2, h3, h4 { margin: 0; line-height: 1.2; letter-spacing: -0.01em; }
+:focus-visible { outline: 2px solid var(--orange-2); outline-offset: 2px; }
+::selection { background: rgba(229, 0, 28, 0.35); }
+.muted { color: var(--muted); }
+.dim { color: var(--dim); }
+.num { font-variant-numeric: tabular-nums; }
+.tag-code { font-weight: 700; font-variant-numeric: tabular-nums; letter-spacing: 0.02em; white-space: nowrap; }
+
+/* ---------- Buttons & inputs ---------- */
+.btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+  height: 38px; padding: 0 16px; border-radius: 10px; border: 1px solid var(--line-2);
+  background: var(--surface-2); color: var(--text); font: inherit; font-weight: 600;
+  cursor: pointer; white-space: nowrap; transition: filter .15s, background .15s, transform .1s;
+}
+.btn:hover { background: var(--raise); }
+.btn:active { transform: translateY(1px); }
+.btn:disabled { opacity: .45; cursor: not-allowed; }
+.btn svg { width: 17px; height: 17px; flex-shrink: 0; }
+.btn-primary { background: var(--grad); border-color: transparent; color: #fff; box-shadow: 0 10px 24px -12px rgba(229, 0, 28, .7); }
+.btn-primary:hover { background: var(--grad); filter: brightness(1.08); }
+.btn-ghost { background: transparent; border-color: transparent; color: var(--muted); }
+.btn-ghost:hover { background: var(--surface-2); color: var(--text); }
+.btn-danger { color: var(--bad); border-color: rgba(240, 89, 110, .35); background: rgba(240, 89, 110, .08); }
+.btn-danger:hover { background: rgba(240, 89, 110, .16); }
+.btn-sm { height: 32px; padding: 0 12px; font-size: 13px; border-radius: 8px; }
+.btn-lg { height: 48px; padding: 0 22px; font-size: 15px; border-radius: 12px; }
+.btn-block { width: 100%; }
+.icon-btn { width: 36px; padding: 0; }
+
+.field { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+.field > label { font-size: 12.5px; font-weight: 600; color: var(--muted); }
+.field .hint { font-size: 12px; color: var(--dim); }
+.req::after { content: ' *'; color: var(--orange-2); }
+.input, .select, .textarea {
+  width: 100%; height: 40px; padding: 0 12px; border-radius: 10px;
+  border: 1px solid var(--line-2); background: var(--bg-2); color: var(--text);
+  font: inherit; transition: border-color .15s, box-shadow .15s;
+}
+.textarea { height: auto; min-height: 76px; padding: 10px 12px; resize: vertical; }
+.select { appearance: none; padding-right: 34px; cursor: pointer;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' fill='none' stroke='%23ab988c' stroke-width='1.8'%3E%3Cpath d='M1 1.5l5 5 5-5'/%3E%3C/svg%3E");
+  background-repeat: no-repeat; background-position: right 12px center; }
+.select option, .select optgroup { background: #1f1612; color: var(--text); }
+.input:focus, .select:focus, .textarea:focus { outline: none; border-color: var(--orange); box-shadow: 0 0 0 3px rgba(194, 97, 18, .22); }
+.input::placeholder, .textarea::placeholder { color: var(--dim); }
+.grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+.grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+.span-2 { grid-column: span 2; }
+.span-3 { grid-column: 1 / -1; }
+
+.segmented { display: inline-flex; padding: 3px; gap: 2px; border-radius: 11px; background: var(--bg-2); border: 1px solid var(--line); flex-wrap: wrap; }
+.segmented button {
+  height: 32px; padding: 0 13px; border: 0; border-radius: 8px; background: transparent;
+  color: var(--muted); font: inherit; font-weight: 600; font-size: 13px; cursor: pointer;
+}
+.segmented button:hover { color: var(--text); }
+.segmented button.on { background: var(--raise); color: var(--text); box-shadow: inset 0 0 0 1px var(--line-2); }
+.count { display: inline-grid; place-items: center; min-width: 20px; height: 20px; padding: 0 6px; margin-left: 6px;
+  border-radius: 99px; background: var(--grad); color: #fff; font-size: 11px; font-weight: 700; }
+
+/* ---------- Status pills ---------- */
+.pill { display: inline-flex; align-items: center; gap: 6px; height: 24px; padding: 0 10px; border-radius: 99px;
+  font-size: 12px; font-weight: 600; white-space: nowrap; background: rgba(255,255,255,.06); color: var(--muted); }
+.pill::before { content: ''; width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+.pill.plain::before { display: none; }
+.pill.ok   { color: var(--ok);   background: rgba(76, 196, 144, .12); }
+.pill.warn { color: var(--warn); background: rgba(234, 166, 64, .13); }
+.pill.info { color: var(--info); background: rgba(111, 170, 232, .13); }
+.pill.bad  { color: var(--bad);  background: rgba(240, 89, 110, .13); }
+.pill.off  { color: var(--off);  background: rgba(139, 128, 122, .14); }
+.pill.brand { color: #ffb178; background: rgba(194, 97, 18, .16); }
+
+/* ---------- Panels, tables ---------- */
+.panel { background: linear-gradient(180deg, rgba(255,255,255,.025), rgba(255,255,255,0)) , var(--surface);
+  border: 1px solid var(--line); border-radius: var(--r-lg); }
+.panel-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 16px 18px 0; }
+.panel-head h3 { font-size: 15px; font-weight: 700; }
+.panel-body { padding: 14px 18px 18px; }
+.table-wrap { overflow-x: auto; border: 1px solid var(--line); border-radius: var(--r-lg); background: var(--surface); }
+table.table { width: 100%; border-collapse: collapse; font-size: 13.5px; }
+.table th { position: sticky; top: 0; text-align: left; font-size: 12px; font-weight: 600; color: var(--dim);
+  padding: 11px 14px; background: var(--surface); border-bottom: 1px solid var(--line); white-space: nowrap; }
+.table td { padding: 11px 14px; border-bottom: 1px solid var(--line); vertical-align: middle; }
+.table tr:last-child td { border-bottom: 0; }
+.table tbody tr.clickable { cursor: pointer; }
+.table tbody tr.clickable:hover td { background: rgba(255, 224, 204, .035); }
+.table .sub { font-size: 12px; color: var(--dim); margin-top: 1px; }
+.thumb { width: 40px; height: 40px; border-radius: 9px; object-fit: cover; background: var(--raise); display: block; border: 1px solid var(--line); }
+.thumb-empty { display: grid; place-items: center; color: var(--dim); }
+.thumb-empty svg { width: 18px; height: 18px; }
+.check { width: 16px; height: 16px; accent-color: var(--orange); cursor: pointer; }
+
+.empty { padding: 48px 20px; text-align: center; color: var(--muted); }
+.empty svg { width: 34px; height: 34px; color: var(--dim); margin-bottom: 10px; }
+.empty h4 { color: var(--text); font-size: 15px; margin-bottom: 4px; }
+.empty p { margin: 0 auto 14px; max-width: 380px; }
+
+/* ---------- Modal ---------- */
+.modal-backdrop { position: fixed; inset: 0; z-index: 900; background: rgba(5, 3, 2, .72); backdrop-filter: blur(4px);
+  display: flex; align-items: flex-start; justify-content: center; padding: 5vh 16px; overflow-y: auto;
+  animation: fadeIn .18s ease; }
+.modal { width: 100%; max-width: 560px; background: var(--surface); border: 1px solid var(--line-2);
+  border-radius: 20px; box-shadow: var(--shadow); animation: rise .22s cubic-bezier(.2,.8,.2,1); }
+.modal.wide { max-width: 920px; }
+.modal-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 14px; padding: 20px 22px 0; }
+.modal-head h2 { font-size: 18px; font-weight: 700; }
+.modal-head p { margin: 4px 0 0; color: var(--muted); font-size: 13px; }
+.modal-body { padding: 18px 22px; }
+.modal-foot { display: flex; justify-content: flex-end; gap: 10px; padding: 0 22px 20px; flex-wrap: wrap; }
+@keyframes fadeIn { from { opacity: 0; } }
+@keyframes rise { from { opacity: 0; transform: translateY(14px) scale(.985); } }
+
+/* ---------- Toast & loading ---------- */
+#toasts { position: fixed; z-index: 1000; left: 50%; bottom: 24px; transform: translateX(-50%); display: flex; flex-direction: column; gap: 8px; align-items: center; pointer-events: none; width: max-content; max-width: calc(100vw - 32px); }
+.toast { pointer-events: auto; display: flex; align-items: center; gap: 10px; padding: 11px 16px; border-radius: 12px;
+  background: #2b1f1a; border: 1px solid var(--line-2); box-shadow: var(--shadow); font-weight: 500; animation: rise .22s ease; }
+.toast::before { content: ''; width: 8px; height: 8px; border-radius: 50%; background: var(--ok); flex-shrink: 0; }
+.toast.error::before { background: var(--bad); }
+.toast.info::before { background: var(--info); }
+.spinner { width: 18px; height: 18px; border-radius: 50%; border: 2px solid rgba(255,255,255,.18); border-top-color: #fff; animation: spin .7s linear infinite; }
+.spinner.lg { width: 34px; height: 34px; border-width: 3px; border-top-color: var(--orange-2); }
+@keyframes spin { to { transform: rotate(360deg); } }
+.loading-block { display: grid; place-items: center; gap: 12px; padding: 60px 0; color: var(--muted); }
+.overlay { position: fixed; inset: 0; z-index: 950; display: grid; place-items: center; background: rgba(5,3,2,.78); backdrop-filter: blur(3px); }
+.overlay-card { display: grid; justify-items: center; gap: 14px; padding: 26px 30px; border-radius: 18px; background: var(--surface); border: 1px solid var(--line-2); min-width: 260px; text-align: center; }
+
+/* ---------- Brand mark & login ---------- */
+.mark { width: 40px; height: 40px; border-radius: 12px; background: var(--grad); display: grid; place-items: center; color: #fff;
+  box-shadow: 0 10px 26px -10px rgba(229, 0, 28, .8); flex-shrink: 0; }
+.mark svg { width: 22px; height: 22px; }
+.login { min-height: 100vh; display: grid; place-items: center; padding: 24px; }
+.login-card { width: 100%; max-width: 380px; padding: 30px 28px; border-radius: 22px; background: var(--surface);
+  border: 1px solid var(--line-2); box-shadow: var(--shadow); }
+.login-card .mark { width: 52px; height: 52px; border-radius: 15px; margin-bottom: 18px; }
+.login-card h1 { font-size: 22px; font-weight: 800; }
+.login-card > p { margin: 6px 0 22px; color: var(--muted); }
+.login-card form { display: grid; gap: 14px; }
+.pw-wrap { position: relative; }
+.pw-wrap .input { padding-right: 44px; }
+.pw-toggle { position: absolute; right: 4px; top: 4px; height: 32px; width: 36px; border: 0; background: transparent; color: var(--dim); cursor: pointer; border-radius: 8px; }
+.pw-toggle:hover { color: var(--text); }
+.pw-toggle svg { width: 18px; height: 18px; }
+.form-error { color: var(--bad); font-size: 13px; min-height: 1em; margin: 0; }
+
+/* ---------- The asset tag (physical label) ---------- */
+.tag-label {
+  position: relative; display: grid; grid-template-columns: 96px 1fr; gap: 12px; align-items: center;
+  width: 300px; padding: 12px 14px 12px 20px; border-radius: 10px; background: #fff; color: #1b1210;
+  font-family: 'Inter', Arial, sans-serif; overflow: hidden; box-shadow: 0 1px 0 rgba(0,0,0,.05);
+}
+.tag-label::before { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 8px; background: var(--grad);
+  -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+.tag-label .qr svg { width: 96px; height: 96px; display: block; }
+.tag-label .owner { font-size: 10px; font-weight: 600; color: #8a5a3a; }
+.tag-label .code { font-size: 19px; font-weight: 800; letter-spacing: .01em; line-height: 1.1; margin: 2px 0 4px; font-variant-numeric: tabular-nums; }
+.tag-label .item { font-size: 11.5px; font-weight: 600; line-height: 1.25; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.tag-label .loc { font-size: 10px; color: #6b5a52; margin-top: 3px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.tag-label .scan { font-size: 9px; color: #9b8a82; margin-top: 5px; }
+#print-area { display: none; }
+
+@media print {
+  @page { margin: 0.4in; }
+  body { background: #fff !important; }
+  body > *:not(#print-area) { display: none !important; }
+  #print-area { display: grid !important; grid-template-columns: repeat(2, 3.2in); gap: 0.18in; }
+  #print-area .tag-label { width: 3.2in; border: 1px solid #cfc6c2; break-inside: avoid; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation: none !important; transition: none !important; }
+}
+@media (max-width: 640px) {
+  .grid-2, .grid-3 { grid-template-columns: 1fr; }
+  .span-2 { grid-column: auto; }
+  .modal-backdrop { padding: 0; align-items: flex-end; }
+  .modal { border-radius: 20px 20px 0 0; max-height: 94vh; overflow-y: auto; }
+}
+</style>
+
+  <style>
+    .shell { display: grid; grid-template-columns: 248px 1fr; min-height: 100vh; }
+    .sidebar { position: sticky; top: 0; height: 100vh; display: flex; flex-direction: column; gap: 6px;
+      padding: 20px 14px; border-right: 1px solid var(--line); background: rgba(14, 9, 7, .72); backdrop-filter: blur(10px); }
+    .brand { display: flex; align-items: center; gap: 12px; padding: 4px 8px 20px; }
+    .brand b { display: block; font-size: 15px; font-weight: 800; letter-spacing: -.01em; }
+    .brand small { color: var(--dim); font-size: 12px; font-weight: 500; }
+    .nav-link { display: flex; align-items: center; gap: 12px; height: 42px; padding: 0 12px; border-radius: 11px;
+      color: var(--muted); font-weight: 600; cursor: pointer; position: relative; user-select: none; text-decoration: none; }
+    .nav-link:hover { background: var(--surface-2); color: var(--text); text-decoration: none; }
+    .nav-link svg { width: 19px; height: 19px; }
+    .nav-link.active { color: #fff; background: linear-gradient(90deg, rgba(194, 97, 18, .26), rgba(229, 0, 28, .08)); }
+    .nav-link.active::before { content: ''; position: absolute; left: -14px; top: 9px; bottom: 9px; width: 3px; border-radius: 0 3px 3px 0; background: var(--grad); }
+    .nav-link .count { margin-left: auto; }
+    .nav-sep { height: 1px; background: var(--line); margin: 12px 6px; }
+    .nav-small { font-size: 12px; color: var(--dim); padding: 0 12px 4px; font-weight: 600; }
+    .side-foot { margin-top: auto; display: grid; gap: 4px; }
+    .user-chip { display: flex; align-items: center; gap: 10px; padding: 10px; border-radius: 12px; background: var(--surface); border: 1px solid var(--line); }
+    .avatar { width: 34px; height: 34px; border-radius: 50%; display: grid; place-items: center; font-weight: 800; font-size: 13px; background: var(--raise); color: #ffb178; flex-shrink: 0; }
+    .user-chip b { display: block; font-size: 13px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .user-chip small { color: var(--dim); font-size: 12px; }
+
+    main { min-width: 0; padding: 26px 32px 60px; }
+    .topbar { display: flex; align-items: flex-end; justify-content: space-between; gap: 16px; margin-bottom: 22px; flex-wrap: wrap; }
+    .topbar h1 { font-size: 26px; font-weight: 800; letter-spacing: -.02em; }
+    .topbar p { margin: 4px 0 0; color: var(--muted); }
+    .top-actions { display: flex; gap: 10px; flex-wrap: wrap; }
+    .toolbar { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; margin-bottom: 14px; }
+    .toolbar .search { position: relative; flex: 1 1 240px; max-width: 360px; }
+    .toolbar .search svg { position: absolute; left: 12px; top: 11px; width: 18px; height: 18px; color: var(--dim); }
+    .toolbar .search .input { padding-left: 38px; }
+    .toolbar .select { width: auto; min-width: 150px; }
+    .toolbar .spacer { flex: 1; }
+
+    /* Dashboard */
+    .kpis { display: grid; grid-template-columns: repeat(5, 1fr); gap: 14px; margin-bottom: 16px; }
+    .kpi { padding: 16px 18px; border-radius: var(--r-lg); background: var(--surface); border: 1px solid var(--line); }
+    .kpi span { color: var(--muted); font-size: 13px; font-weight: 600; }
+    .kpi b { display: block; font-size: 30px; font-weight: 800; letter-spacing: -.02em; margin-top: 6px; font-variant-numeric: tabular-nums; }
+    .kpi.hero { background: var(--grad); border-color: transparent; box-shadow: 0 18px 40px -22px rgba(229, 0, 28, .9); }
+    .kpi.hero span { color: rgba(255, 255, 255, .85); }
+    .kpi .bar { height: 3px; border-radius: 3px; margin-top: 12px; background: currentColor; opacity: .7; }
+    .dash-grid { display: grid; grid-template-columns: 1.15fr 1fr; gap: 16px; }
+    .bars { display: grid; gap: 12px; }
+    .bar-row { display: grid; grid-template-columns: 110px 1fr 44px; gap: 12px; align-items: center; font-size: 13px; }
+    .bar-track { height: 10px; border-radius: 99px; background: var(--bg-2); overflow: hidden; }
+    .bar-fill { height: 100%; border-radius: 99px; background: var(--grad); }
+    .feed { display: grid; }
+    .feed-row { display: grid; grid-template-columns: 34px 1fr auto; gap: 12px; align-items: center; padding: 11px 0; border-bottom: 1px solid var(--line); }
+    .feed-row:last-child { border-bottom: 0; }
+    .dir { width: 34px; height: 34px; border-radius: 10px; display: grid; place-items: center; }
+    .dir svg { width: 17px; height: 17px; }
+    .dir.in { background: rgba(76, 196, 144, .13); color: var(--ok); }
+    .dir.out { background: rgba(234, 166, 64, .13); color: var(--warn); }
+    .feed-row b { font-size: 13.5px; }
+    .feed-row .sub { font-size: 12px; color: var(--dim); }
+    .feed-row .when { font-size: 12px; color: var(--dim); text-align: right; white-space: nowrap; }
+
+    /* Detail layouts */
+    .detail { display: grid; grid-template-columns: 300px 1fr; gap: 22px; }
+    .photo-lg { width: 100%; aspect-ratio: 4 / 3; border-radius: 14px; object-fit: cover; background: var(--raise); border: 1px solid var(--line); display: block; }
+    .photo-lg.empty-photo { display: grid; place-items: center; color: var(--dim); }
+    .photo-lg.empty-photo svg { width: 40px; height: 40px; }
+    dl.facts { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px 20px; margin: 16px 0 0; }
+    dl.facts div { min-width: 0; }
+    dl.facts dt { font-size: 12px; color: var(--dim); font-weight: 600; }
+    dl.facts dd { margin: 2px 0 0; overflow-wrap: anywhere; }
+    .timeline { display: grid; gap: 0; margin-top: 8px; }
+    .tl-row { display: grid; grid-template-columns: 14px 1fr; gap: 12px; padding-bottom: 14px; position: relative; }
+    .tl-row::before { content: ''; position: absolute; left: 6px; top: 16px; bottom: 0; width: 2px; background: var(--line); }
+    .tl-row:last-child::before { display: none; }
+    .tl-dot { width: 14px; height: 14px; border-radius: 50%; border: 3px solid var(--surface); background: var(--orange); margin-top: 3px; box-shadow: 0 0 0 1px var(--line-2); }
+    .tl-row .sub { color: var(--dim); font-size: 12px; }
+    .section-title { font-size: 14px; font-weight: 700; margin: 22px 0 10px; }
+    .link-box { display: flex; gap: 8px; }
+    .link-box .input { font-size: 12.5px; color: var(--muted); }
+
+    /* Registrations */
+    .reg-list { display: grid; gap: 14px; }
+    .reg-card { border-radius: var(--r-lg); background: var(--surface); border: 1px solid var(--line); overflow: hidden; }
+    .reg-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 14px; padding: 16px 18px; flex-wrap: wrap; }
+    .reg-head h3 { font-size: 16px; font-weight: 700; display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+    .reg-head p { margin: 4px 0 0; color: var(--muted); font-size: 13px; }
+    .reg-items { border-top: 1px solid var(--line); }
+    .reg-item { display: grid; grid-template-columns: 56px 1fr auto; gap: 14px; align-items: center; padding: 12px 18px; border-bottom: 1px solid var(--line); }
+    .reg-item:last-child { border-bottom: 0; }
+    .reg-item img, .reg-item .thumb { width: 56px; height: 56px; border-radius: 10px; object-fit: cover; }
+    .reg-item .sub { color: var(--dim); font-size: 12px; }
+    .qty { font-weight: 800; font-size: 15px; font-variant-numeric: tabular-nums; }
+    .reg-foot { display: flex; justify-content: flex-end; gap: 10px; padding: 12px 18px; background: var(--bg-2); border-top: 1px solid var(--line); flex-wrap: wrap; }
+
+    .photo-pick { display: grid; grid-template-columns: 96px 1fr; gap: 14px; align-items: center; }
+    .photo-pick img, .photo-pick .ph { width: 96px; height: 96px; border-radius: 12px; object-fit: cover; background: var(--raise); border: 1px dashed var(--line-2); display: grid; place-items: center; color: var(--dim); }
+    .photo-pick .ph svg { width: 26px; height: 26px; }
+    .more-row { text-align: center; padding: 14px; }
+    .note-line { font-size: 12.5px; color: var(--dim); margin-top: 10px; }
+    .mobile-nav { display: none; }
+
+    @media (max-width: 1180px) { .kpis { grid-template-columns: repeat(3, 1fr); } .dash-grid { grid-template-columns: 1fr; } }
+    @media (max-width: 900px) {
+      .shell { grid-template-columns: 1fr; }
+      .sidebar { display: none; }
+      .mobile-nav { display: flex; gap: 6px; overflow-x: auto; padding: 12px 14px; position: sticky; top: 0; z-index: 50;
+        background: rgba(14, 9, 7, .92); backdrop-filter: blur(10px); border-bottom: 1px solid var(--line); }
+      .mobile-nav .nav-link { flex-shrink: 0; height: 38px; }
+      .mobile-nav .nav-link.active::before { display: none; }
+      main { padding: 18px 16px 50px; }
+      .detail { grid-template-columns: 1fr; }
+      .kpis { grid-template-columns: repeat(2, 1fr); }
+    }
+  </style>
+</head>
+<body>
+  <div id="login-root"></div>
+
+  <div id="app" class="shell" hidden>
+    <aside class="sidebar">
+      <div class="brand">
+        <div class="mark"><svg fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M7 7h.01M3 11.6V4a1 1 0 011-1h7.6a1 1 0 01.7.3l8.4 8.4a1 1 0 010 1.4l-7.6 7.6a1 1 0 01-1.4 0L3.3 12.3a1 1 0 01-.3-.7z"/></svg></div>
+        <div><b>Asset Management</b><small>Version 1.0</small></div>
+      </div>
+      <nav id="side-nav"></nav>
+      <div class="side-foot">
+        <div class="nav-sep"></div>
+        <div class="nav-small">Other pages</div>
+        <a class="nav-link" id="lnk-form" target="_blank"></a>
+        <a class="nav-link" id="lnk-scan" target="_blank"></a>
+        <div class="nav-sep"></div>
+        <div class="user-chip">
+          <div class="avatar" id="u-avatar"></div>
+          <div style="min-width:0;flex:1"><b id="u-name"></b><small id="u-role"></small></div>
+          <button class="btn btn-ghost icon-btn btn-sm" id="btn-pw" title="Change password"></button>
+          <button class="btn btn-ghost icon-btn btn-sm" id="btn-logout" title="Sign out"></button>
+        </div>
+      </div>
+    </aside>
+
+    <div style="min-width:0">
+      <nav class="mobile-nav" id="mobile-nav"></nav>
+      <main>
+        <div class="topbar">
+          <div><h1 id="page-title"></h1><p id="page-sub"></p></div>
+          <div class="top-actions" id="page-actions"></div>
+        </div>
+        <div id="page"></div>
+      </main>
+    </div>
+  </div>
+
+  <div id="print-area"></div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js"></script>
+  <div id="toasts" aria-live="polite"></div>
+<script>
+const AM = (function () {
+  const TOKEN_KEY = 'am_token';
+
+  const ICONS = {
+    tag: '<path d="M7 7h.01M3 11.6V4a1 1 0 011-1h7.6a1 1 0 01.7.3l8.4 8.4a1 1 0 010 1.4l-7.6 7.6a1 1 0 01-1.4 0L3.3 12.3a1 1 0 01-.3-.7z"/>',
+    home: '<path d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/>',
+    store: '<path d="M3 9l1.5-5h15L21 9M3 9h18M3 9v1.5a2.5 2.5 0 005 0V9m0 0v1.5a2.5 2.5 0 005 0V9m0 0v1.5a2.5 2.5 0 005 0V9M5 13v8h14v-8M10 21v-4h4v4"/>',
+    box: '<path d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/>',
+    clock: '<path d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>',
+    users: '<path d="M17 20h5v-2a3 3 0 00-5.4-1.8M17 20H7m10 0v-2c0-.7-.1-1.3-.4-1.8M7 20H2v-2a3 3 0 015.4-1.8M7 20v-2c0-.7.1-1.3.4-1.8m0 0a5 5 0 019.2 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/>',
+    plus: '<path d="M12 5v14M5 12h14"/>',
+    refresh: '<path d="M4 4v5h.6m15.4 2A8 8 0 004.6 9m0 0H9m11 11v-5h-.6m0 0a8 8 0 01-15.4-2m15.4 2H15"/>',
+    print: '<path d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/>',
+    search: '<path d="M21 21l-5.2-5.2M17 10a7 7 0 11-14 0 7 7 0 0114 0z"/>',
+    x: '<path d="M6 18L18 6M6 6l12 12"/>',
+    camera: '<path d="M3 9a2 2 0 012-2h.9a2 2 0 001.7-.9l.8-1.2A2 2 0 0110.1 4h3.8a2 2 0 011.7.9l.8 1.2a2 2 0 001.7.9H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/><path d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"/>',
+    image: '<path d="M4 16l4.6-4.6a2 2 0 012.8 0L16 16m-2-2l1.6-1.6a2 2 0 012.8 0L20 14M14 8h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>',
+    pin: '<path d="M17.7 16.7L13.4 21a2 2 0 01-2.8 0l-4.3-4.3a8 8 0 1111.4 0z"/><path d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>',
+    link: '<path d="M13.8 10.2a4 4 0 00-5.6 0l-4 4a4 4 0 105.6 5.6l1.1-1.1m-.7-4.9a4 4 0 005.6 0l4-4a4 4 0 00-5.6-5.6l-1.1 1.1"/>',
+    scan: '<path d="M3 7V5a2 2 0 012-2h2M17 3h2a2 2 0 012 2v2M21 17v2a2 2 0 01-2 2h-2M7 21H5a2 2 0 01-2-2v-2M7 12h10"/>',
+    form: '<path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/>',
+    logout: '<path d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/>',
+    key: '<path d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.7 5.7L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.6a1 1 0 01.3-.7l6-6A6 6 0 1121 9z"/>',
+    edit: '<path d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.4-9.4a2 2 0 112.8 2.8L11.8 15H9v-2.8l8.6-8.6z"/>',
+    trash: '<path d="M19 7l-.9 12.1A2 2 0 0116.1 21H7.9a2 2 0 01-2-1.9L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>',
+    arrowIn: '<path d="M11 16l-4-4m0 0l4-4m-4 4h14M3 5v14"/>',
+    arrowOut: '<path d="M13 16l4-4m0 0l-4-4m4 4H3m18-7v14"/>',
+    check: '<path d="M5 13l4 4L19 7"/>',
+    eye: '<path d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path d="M2.5 12C3.7 7.9 7.5 5 12 5s8.3 2.9 9.5 7c-1.2 4.1-5 7-9.5 7s-8.3-2.9-9.5-7z"/>',
+    menu: '<path d="M4 6h16M4 12h16M4 18h16"/>'
+  };
+  function icon(name, cls) {
+    return '<svg class="' + (cls || '') + '" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24" aria-hidden="true">' + (ICONS[name] || '') + '</svg>';
+  }
+
+  function call(fn) {
+    const args = Array.prototype.slice.call(arguments, 1);
+    if (window.AM_API_URL) {                     // page hosted outside Apps Script (GitHub Pages)
+      return fetch(window.AM_API_URL, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+        body: JSON.stringify({ fn: fn, args: args }) })
+        .catch(function () { throw new Error('Cannot reach the server. Check your internet connection and try again.'); })
+        .then(function (r) { return r.json().catch(function () { throw new Error('The server sent an unexpected reply. Check the API link in this page.'); }); })
+        .then(function (res) { if (!res.ok) throw new Error(res.error); return res.data; });
+    }
+    return new Promise(function (resolve, reject) {
+      const runner = google.script.run.withSuccessHandler(resolve).withFailureHandler(reject);
+      runner[fn].apply(runner, args);
+    });
+  }
+  function errMsg(e) {
+    const m = (e && e.message) || String(e || 'Something went wrong.');
+    return m.replace(/^(Exception|Error):\s*/i, '');
+  }
+  function isExpired(e) { return /SESSION_EXPIRED/.test(errMsg(e)); }
+
+  function getToken() { try { return localStorage.getItem(TOKEN_KEY) || ''; } catch (e) { return AM._t || ''; } }
+  function setToken(t) { AM._t = t; try { localStorage.setItem(TOKEN_KEY, t); } catch (e) {} }
+  function clearToken() { AM._t = ''; try { localStorage.removeItem(TOKEN_KEY); } catch (e) {} }
+
+  function esc(v) {
+    return String(v == null ? '' : v).replace(/[&<>"']/g, function (c) {
+      return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+    });
+  }
+  function parseDate(v) { if (!v) return null; const d = new Date(v); return isNaN(d) ? null : d; }
+  function fmtDate(v, withTime) {
+    const d = parseDate(v); if (!d) return '—';
+    const opts = { month: 'short', day: 'numeric', year: 'numeric', timeZone: 'Asia/Manila' };
+    if (withTime) { opts.hour = 'numeric'; opts.minute = '2-digit'; }
+    return d.toLocaleString('en-PH', opts);
+  }
+  function timeAgo(v) {
+    const d = parseDate(v); if (!d) return '—';
+    const s = (Date.now() - d.getTime()) / 1000;
+    if (s < 60) return 'just now';
+    if (s < 3600) return Math.floor(s / 60) + ' min ago';
+    if (s < 86400) return Math.floor(s / 3600) + ' hr ago';
+    if (s < 86400 * 7) { const n = Math.floor(s / 86400); return n + (n === 1 ? ' day' : ' days') + ' ago'; }
+    return fmtDate(v);
+  }
+  function peso(n) {
+    if (n === '' || n == null || isNaN(Number(n))) return '—';
+    return '₱' + Number(n).toLocaleString('en-PH', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  }
+  function mapUrl(lat, lng) { return 'https://www.google.com/maps?q=' + lat + ',' + lng; }
+  function hasCoords(lat, lng) { return lat !== '' && lng !== '' && lat != null && lng != null && !isNaN(Number(lat)) && !(Number(lat) === 0 && Number(lng) === 0); }
+
+  const STATUS_CLASS = { 'Active': 'ok', 'In Transit': 'warn', 'Under Repair': 'bad', 'In Storage': 'info', 'Disposed': 'off',
+    'Pending': 'warn', 'Approved': 'ok', 'Rejected': 'bad', 'Open': 'ok', 'Closed': 'off',
+    'Checked In': 'ok', 'Checked Out': 'warn', 'Registered': 'brand', 'Updated': 'info' };
+  function pill(text) { return '<span class="pill ' + (STATUS_CLASS[text] || '') + '">' + esc(text || '—') + '</span>'; }
+
+  function toast(msg, type) {
+    const box = document.getElementById('toasts');
+    const el = document.createElement('div');
+    el.className = 'toast ' + (type || '');
+    el.textContent = msg;
+    box.appendChild(el);
+    setTimeout(function () { el.style.opacity = '0'; el.style.transition = 'opacity .3s'; }, 3600);
+    setTimeout(function () { el.remove(); }, 4000);
+  }
+
+  // Generic modal. Returns { el, close }.
+  function modal(opts) {
+    const back = document.createElement('div');
+    back.className = 'modal-backdrop';
+    back.innerHTML =
+      '<div class="modal ' + (opts.wide ? 'wide' : '') + '" role="dialog" aria-modal="true">' +
+        '<div class="modal-head"><div><h2>' + esc(opts.title || '') + '</h2>' + (opts.subtitle ? '<p>' + opts.subtitle + '</p>' : '') + '</div>' +
+        '<button class="btn btn-ghost icon-btn" data-close aria-label="Close">' + icon('x') + '</button></div>' +
+        '<div class="modal-body">' + (opts.body || '') + '</div>' +
+        (opts.foot ? '<div class="modal-foot">' + opts.foot + '</div>' : '') +
+      '</div>';
+    function close() { back.remove(); document.removeEventListener('keydown', onKey); if (opts.onClose) opts.onClose(); }
+    function onKey(e) { if (e.key === 'Escape') close(); }
+    back.addEventListener('mousedown', function (e) { if (e.target === back) close(); });
+    back.querySelectorAll('[data-close]').forEach(function (b) { b.addEventListener('click', close); });
+    document.addEventListener('keydown', onKey);
+    document.body.appendChild(back);
+    const first = back.querySelector('.modal-body input, .modal-body select, .modal-body textarea');
+    if (first && !opts.noFocus) setTimeout(function () { first.focus(); }, 60);
+    return { el: back, close: close };
+  }
+
+  function confirmBox(title, text, okLabel, danger) {
+    return new Promise(function (resolve) {
+      let done = false;
+      const m = modal({ title: title, body: '<p style="margin:0;color:var(--muted)">' + text + '</p>', noFocus: true,
+        foot: '<button class="btn" data-close>Cancel</button><button class="btn ' + (danger ? 'btn-danger' : 'btn-primary') + '" data-ok>' + esc(okLabel) + '</button>',
+        onClose: function () { if (!done) resolve(false); } });
+      m.el.querySelector('[data-ok]').addEventListener('click', function () { done = true; m.close(); resolve(true); });
+    });
+  }
+
+  function busy(btn, on, label) {
+    if (!btn) return;
+    if (on) { btn.dataset.html = btn.innerHTML; btn.disabled = true; btn.innerHTML = '<span class="spinner"></span>' + (label ? ' ' + esc(label) : ''); }
+    else { btn.disabled = false; if (btn.dataset.html) btn.innerHTML = btn.dataset.html; }
+  }
+
+  function overlay(text) {
+    const el = document.createElement('div');
+    el.className = 'overlay';
+    el.innerHTML = '<div class="overlay-card"><span class="spinner lg"></span><div data-text>' + esc(text || 'Working…') + '</div></div>';
+    document.body.appendChild(el);
+    return { set: function (t) { el.querySelector('[data-text]').textContent = t; }, close: function () { el.remove(); } };
+  }
+
+  // Shrinks a photo before upload (long side max 1280px, JPEG)
+  function compressImage(file, max, quality) {
+    max = max || 1280; quality = quality || 0.82;
+    return new Promise(function (resolve, reject) {
+      if (!file || !/^image\//.test(file.type)) { reject(new Error('Choose an image file.')); return; }
+      const reader = new FileReader();
+      reader.onerror = function () { reject(new Error('Could not read that photo.')); };
+      reader.onload = function () {
+        const img = new Image();
+        img.onerror = function () { reject(new Error('Could not open that photo. Try JPG or PNG.')); };
+        img.onload = function () {
+          let w = img.naturalWidth, h = img.naturalHeight;
+          const scale = Math.min(1, max / Math.max(w, h));
+          w = Math.round(w * scale); h = Math.round(h * scale);
+          const c = document.createElement('canvas'); c.width = w; c.height = h;
+          const ctx = c.getContext('2d'); ctx.fillStyle = '#fff'; ctx.fillRect(0, 0, w, h); ctx.drawImage(img, 0, 0, w, h);
+          resolve(c.toDataURL('image/jpeg', quality));
+        };
+        img.src = reader.result;
+      };
+      reader.readAsDataURL(file);
+    });
+  }
+
+  // QR code as SVG (uses qrcode-generator)
+  function qrSvg(text) {
+    const qr = qrcode(0, 'M'); qr.addData(text); qr.make();
+    const n = qr.getModuleCount(), q = 2, size = n + q * 2;
+    let d = '';
+    for (let r = 0; r < n; r++) for (let c = 0; c < n; c++) if (qr.isDark(r, c)) d += 'M' + (c + q) + ' ' + (r + q) + 'h1v1h-1z';
+    return '<svg viewBox="0 0 ' + size + ' ' + size + '" xmlns="http://www.w3.org/2000/svg" shape-rendering="crispEdges"><rect width="100%" height="100%" fill="#fff"/><path d="' + d + '" fill="#1b1210"/></svg>';
+  }
+
+  // The printable tag label
+  function tagLabel(asset, store, scanUrl) {
+    const owner = store && store.type === 'Nescafe' ? 'Nescafe' : 'Cocopan';
+    return '<div class="tag-label">' +
+      '<div class="qr">' + qrSvg(scanUrl) + '</div>' +
+      '<div><div class="owner">Property of ' + owner + '</div>' +
+      '<div class="code">' + esc(asset.tag_code) + '</div>' +
+      '<div class="item">' + esc(asset.name) + '</div>' +
+      '<div class="loc">' + esc(store ? store.name : '') + '</div>' +
+      '<div class="scan">Scan to check in or out</div></div></div>';
+  }
+
+  function copyText(text) {
+    return new Promise(function (resolve) {
+      function fallback() {
+        const ta = document.createElement('textarea'); ta.value = text; ta.style.position = 'fixed'; ta.style.opacity = '0';
+        document.body.appendChild(ta); ta.select();
+        let ok = false; try { ok = document.execCommand('copy'); } catch (e) {}
+        ta.remove(); resolve(ok);
+      }
+      if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(text).then(function () { resolve(true); }, fallback);
+      else fallback();
+    });
+  }
+
+  // Login screen shared by the web app and the scanner
+  function renderLogin(root, opts) {
+    root.innerHTML =
+      '<div class="login"><div class="login-card">' +
+        '<div class="mark">' + icon(opts.icon || 'tag') + '</div>' +
+        '<h1>' + esc(opts.title) + '</h1><p>' + esc(opts.subtitle) + '</p>' +
+        '<form novalidate>' +
+          '<div class="field"><label for="lg-user">Username</label><input class="input" id="lg-user" autocomplete="username" autocapitalize="none" required></div>' +
+          '<div class="field"><label for="lg-pass">Password</label><div class="pw-wrap"><input class="input" id="lg-pass" type="password" autocomplete="current-password" required>' +
+          '<button type="button" class="pw-toggle" aria-label="Show password">' + icon('eye') + '</button></div></div>' +
+          '<p class="form-error" role="alert"></p>' +
+          '<button type="submit" class="btn btn-primary btn-lg btn-block">Sign in</button>' +
+        '</form></div></div>';
+    const form = root.querySelector('form'), err = root.querySelector('.form-error'), pass = root.querySelector('#lg-pass');
+    root.querySelector('.pw-toggle').addEventListener('click', function () { pass.type = pass.type === 'password' ? 'text' : 'password'; });
+    form.addEventListener('submit', function (e) {
+      e.preventDefault();
+      const u = root.querySelector('#lg-user').value.trim(), p = pass.value;
+      if (!u || !p) { err.textContent = 'Enter your username and password.'; return; }
+      const btn = form.querySelector('[type=submit]'); busy(btn, true, 'Signing in'); err.textContent = '';
+      call('login', u, p).then(function (res) { setToken(res.token); opts.onSuccess(res.user); })
+        .catch(function (e2) { err.textContent = errMsg(e2); busy(btn, false); });
+    });
+    setTimeout(function () { root.querySelector('#lg-user').focus(); }, 50);
+  }
+
+  function distanceM(a, b, c, d) {
+    const R = 6371000, toR = Math.PI / 180;
+    const dLat = (c - a) * toR, dLng = (d - b) * toR;
+    const x = Math.sin(dLat / 2) ** 2 + Math.cos(a * toR) * Math.cos(c * toR) * Math.sin(dLng / 2) ** 2;
+    return 2 * R * Math.asin(Math.sqrt(x));
+  }
+  function fmtDistance(m) { return m < 1000 ? Math.round(m) + ' m' : (m / 1000).toFixed(m < 10000 ? 1 : 0) + ' km'; }
+
+  return { call: call, errMsg: errMsg, isExpired: isExpired, getToken: getToken, setToken: setToken, clearToken: clearToken,
+    esc: esc, fmtDate: fmtDate, timeAgo: timeAgo, peso: peso, mapUrl: mapUrl, hasCoords: hasCoords, pill: pill, icon: icon,
+    toast: toast, modal: modal, confirmBox: confirmBox, busy: busy, overlay: overlay, compressImage: compressImage,
+    qrSvg: qrSvg, tagLabel: tagLabel, copyText: copyText, renderLogin: renderLogin, distanceM: distanceM, fmtDistance: fmtDistance,
+    CATEGORIES: ['Kitchen Equipment', 'Refrigeration', 'Furniture', 'Appliance', 'IT & Electronics', 'Display & Fixtures', 'Signage', 'Tools', 'Others'] };
+})();
+</script>
+
+  <script>window.BOOT = { appUrl: '', params: Object.fromEntries(new URLSearchParams(location.search)) };</script>
+  <script>
+(function () {
+  const $ = function (sel, root) { return (root || document).querySelector(sel); };
+  const $$ = function (sel, root) { return Array.prototype.slice.call((root || document).querySelectorAll(sel)); };
+  const esc = AM.esc, icon = AM.icon, pill = AM.pill;
+
+  const PAGES = [
+    { id: 'dashboard', label: 'Dashboard', icon: 'home' },
+    { id: 'stores', label: 'Store Directory', icon: 'store' },
+    { id: 'assets', label: 'Assets', icon: 'box' },
+    { id: 'history', label: 'History', icon: 'clock' },
+    { id: 'users', label: 'Users', icon: 'users', admin: true }
+  ];
+  const ROLE_LABEL = { admin: 'Admin', fm: 'Facility & Management', viewer: 'Viewer' };
+
+  const S = {
+    page: 'dashboard', user: null, stores: [], assets: [], regs: [], history: [], historyTotal: 0, users: [],
+    lists: { storeTypes: [], statuses: [], conditions: [], roles: [] }, storeById: {},
+    f: {
+      stores: { q: '', type: 'All', status: 'Open' },
+      assets: { q: '', status: '', type: '', category: '', store: '' },
+      regStatus: 'Pending', assetTab: 'all',
+      history: { q: '', action: '', type: '', from: '', to: '' }
+    },
+    selected: new Set(), assetLimit: 200, historyLimit: 300
+  };
+
+  const appUrl = BOOT.appUrl;
+  const withParam = function (base, key, val) {
+    return base + (val ? (base.indexOf('?') >= 0 ? '&' : '?') + key + '=' + encodeURIComponent(val) : '');
+  };
+  const links = function () { return S.links || { form: appUrl + '?page=form', scanner: appUrl + '?page=scanner' }; };
+  const formUrl = function (code) { return withParam(links().form, 'store', code); };
+  const scanUrl = function (tag) { return withParam(links().scanner, 'tag', tag); };
+  const isAdmin = function () { return S.user && S.user.role === 'admin'; };
+  const storeOf = function (id) { return S.storeById[String(id)] || null; };
+  const thumb = function (url, w) { return url ? String(url).replace(/sz=w\d+/, 'sz=w' + (w || 200)) : ''; };
+  const norm = function (v) { return String(v == null ? '' : v).toLowerCase(); };
+
+  /* ---------------- Boot & data ---------------- */
+
+  function showLogin() {
+    $('#app').hidden = true;
+    AM.renderLogin($('#login-root'), {
+      title: 'Asset Management', subtitle: 'Sign in to manage store assets.',
+      onSuccess: function () { $('#login-root').innerHTML = ''; load(); }
+    });
+  }
+
+  function load() {
+    $('#app').hidden = false;
+    $('#page').innerHTML = '<div class="loading-block"><span class="spinner lg"></span>Loading assets…</div>';
+    return AM.call('getAppData', AM.getToken()).then(setData).then(renderAll).catch(handleError);
+  }
+
+  function refresh(msg) {
+    return AM.call('getAppData', AM.getToken()).then(function (d) { setData(d); renderAll(); if (msg) AM.toast(msg); })
+      .catch(handleError);
+  }
+
+  function setData(d) {
+    S.user = d.user; S.stores = d.stores; S.assets = d.assets; S.regs = d.registrations;
+    S.history = d.history; S.historyTotal = d.historyTotal; S.users = d.users; S.lists = d.lists;
+    S.links = d.links;
+    $('#lnk-scan').href = scanUrl(); $('#lnk-form').href = formUrl();
+    S.storeById = {};
+    S.stores.forEach(function (s) { S.storeById[String(s.id)] = s; });
+    const ids = new Set(S.assets.map(function (a) { return String(a.id); }));
+    S.selected.forEach(function (id) { if (!ids.has(id)) S.selected.delete(id); });
+  }
+
+  function handleError(e) {
+    if (AM.isExpired(e)) { AM.clearToken(); AM.toast('Your session ended. Sign in again.', 'info'); showLogin(); return; }
+    AM.toast(AM.errMsg(e), 'error');
+    if (!S.user) $('#page').innerHTML = '<div class="empty"><h4>Could not load the data</h4><p>' + esc(AM.errMsg(e)) + '</p><button class="btn" onclick="location.reload()">Try again</button></div>';
+  }
+  function safe(p) { return p.catch(function () {}); }
+
+  /* ---------------- Shell ---------------- */
+
+  function renderAll() {
+    const u = S.user;
+    $('#u-name').textContent = u.full_name || u.username;
+    $('#u-role').textContent = ROLE_LABEL[u.role] || u.role;
+    $('#u-avatar').textContent = String(u.full_name || u.username).split(/\s+/).map(function (w) { return w[0]; }).join('').slice(0, 2).toUpperCase();
+    renderNav();
+    renderPage();
+  }
+
+  function renderNav() {
+    const pending = S.regs.filter(function (r) { return r.status === 'Pending'; }).length;
+    const html = PAGES.filter(function (p) { return !p.admin || isAdmin(); }).map(function (p) {
+      return '<a class="nav-link ' + (S.page === p.id ? 'active' : '') + '" data-page="' + p.id + '" tabindex="0">' + icon(p.icon) + esc(p.label) +
+        (p.id === 'assets' && pending ? '<span class="count">' + pending + '</span>' : '') + '</a>';
+    }).join('');
+    $('#side-nav').innerHTML = html;
+    $('#mobile-nav').innerHTML = html;
+    $$('[data-page]').forEach(function (a) {
+      a.onclick = function () { go(a.dataset.page); };
+      a.onkeydown = function (e) { if (e.key === 'Enter') go(a.dataset.page); };
+    });
+  }
+
+  function go(page) {
+    S.page = page;
+    renderNav(); renderPage();
+    window.scrollTo(0, 0);
+  }
+
+  function header(title, sub, actions) {
+    $('#page-title').textContent = title;
+    $('#page-sub').innerHTML = sub || '';
+    $('#page-actions').innerHTML = (actions || '') +
+      '<button class="btn icon-btn" id="btn-refresh" title="Refresh">' + icon('refresh') + '</button>';
+    $('#btn-refresh').onclick = function () { const b = this; AM.busy(b, true); refresh('Up to date').finally(function () { AM.busy(b, false); }); };
+  }
+
+  function renderPage() {
+    ({ dashboard: renderDashboard, stores: renderStores, assets: renderAssets, history: renderHistory, users: renderUsers }[S.page] || renderDashboard)();
+  }
+
+  /* ---------------- Dashboard ---------------- */
+
+  function renderDashboard() {
+    const live = S.assets.filter(function (a) { return a.status !== 'Disposed'; });
+    const byStatus = {};
+    S.assets.forEach(function (a) { byStatus[a.status] = (byStatus[a.status] || 0) + 1; });
+    const pending = S.regs.filter(function (r) { return r.status === 'Pending'; });
+    const pendingQty = pending.reduce(function (t, r) { return t + r.items.reduce(function (n, it) { return n + (Number(it.quantity) || 1); }, 0); }, 0);
+
+    header('Dashboard', 'Asset count across all stores, Commissary and Head Office.');
+
+    const kpi = function (label, value, color, cls) {
+      return '<div class="kpi ' + (cls || '') + '"' + (color ? ' style="color:' + color + '"' : '') + '><span>' + label + '</span><b style="color:var(--text)">' + value.toLocaleString() + '</b>' + (color ? '<div class="bar"></div>' : '') + '</div>';
+    };
+
+    const types = S.lists.storeTypes;
+    const byType = types.map(function (t) {
+      return { t: t, n: live.filter(function (a) { const s = storeOf(a.store_id); return s && s.type === t; }).length };
+    });
+    const maxType = Math.max(1, Math.max.apply(null, byType.map(function (x) { return x.n; })));
+
+    const statusColors = { 'Active': 'var(--ok)', 'In Transit': 'var(--warn)', 'Under Repair': 'var(--bad)', 'In Storage': 'var(--info)', 'Disposed': 'var(--off)' };
+    const maxStatus = Math.max(1, Math.max.apply(null, S.lists.statuses.map(function (s) { return byStatus[s] || 0; })));
+
+    const perStore = {};
+    live.forEach(function (a) { perStore[a.store_id] = (perStore[a.store_id] || 0) + 1; });
+    const topStores = Object.keys(perStore).map(function (id) { return { s: storeOf(id), n: perStore[id] }; })
+      .filter(function (x) { return x.s; }).sort(function (a, b) { return b.n - a.n; }).slice(0, 6);
+
+    const scans = S.history.filter(function (h) { return h.action === 'Checked In' || h.action === 'Checked Out'; }).slice(0, 8);
+    const assetById = {};
+    S.assets.forEach(function (a) { assetById[a.id] = a; });
+
+    $('#page').innerHTML =
+      '<div class="kpis">' +
+        kpi('Total assets', live.length, '', 'hero') +
+        kpi('Active', byStatus['Active'] || 0, 'var(--ok)') +
+        kpi('In transit', byStatus['In Transit'] || 0, 'var(--warn)') +
+        kpi('Under repair', byStatus['Under Repair'] || 0, 'var(--bad)') +
+        kpi('Waiting for approval', pendingQty, 'var(--orange-2)') +
+      '</div>' +
+      '<div class="dash-grid">' +
+        '<div style="display:grid;gap:16px;align-content:start">' +
+          '<section class="panel"><div class="panel-head"><h3>Latest scans</h3><button class="btn btn-ghost btn-sm" data-go="history">See history</button></div><div class="panel-body"><div class="feed">' +
+            (scans.length ? scans.map(function (h) {
+              const a = assetById[h.asset_id] || {}, s = storeOf(h.store_id), isIn = h.action === 'Checked In';
+              return '<div class="feed-row clickable" data-asset="' + esc(h.asset_id) + '" style="cursor:pointer">' +
+                '<div class="dir ' + (isIn ? 'in' : 'out') + '">' + icon(isIn ? 'arrowIn' : 'arrowOut') + '</div>' +
+                '<div style="min-width:0"><b>' + esc(a.name || 'Asset') + '</b> <span class="tag-code muted" style="font-size:12px">' + esc(a.tag_code || '') + '</span>' +
+                '<div class="sub">' + (isIn ? 'Checked in at ' : 'Checked out from ') + esc(s ? s.name : '—') + (h.actor ? ' by ' + esc(h.actor) : '') + '</div></div>' +
+                '<div class="when">' + AM.timeAgo(h.created_at) + (AM.hasCoords(h.lat, h.lng) ? '<br><a href="' + AM.mapUrl(h.lat, h.lng) + '" target="_blank" data-stop>Map</a>' : '') + '</div></div>';
+            }).join('') : '<div class="empty" style="padding:26px 10px"><p style="margin:0">No scans yet. Check-ins and check-outs from the Asset Scanner show here.</p></div>') +
+          '</div></div></section>' +
+          '<section class="panel"><div class="panel-head"><h3>Waiting for approval</h3><button class="btn btn-ghost btn-sm" data-go="regs">Review all</button></div><div class="panel-body"><div class="feed">' +
+            (pending.length ? pending.slice(0, 5).map(function (r) {
+              const s = storeOf(r.store_id), qty = r.items.reduce(function (n, it) { return n + (Number(it.quantity) || 1); }, 0);
+              return '<div class="feed-row" data-go="regs" style="cursor:pointer;grid-template-columns:1fr auto">' +
+                '<div><b>' + esc(s ? s.name : 'Unknown store') + '</b><div class="sub">' + esc(r.ref_no) + ', ' + qty + (qty === 1 ? ' asset' : ' assets') + ' from ' + esc(r.submitted_by) + '</div></div>' +
+                '<div class="when">' + AM.timeAgo(r.created_at) + '</div></div>';
+            }).join('') : '<div class="empty" style="padding:26px 10px"><p style="margin:0">Nothing to review. New store registrations land here.</p></div>') +
+          '</div></div></section>' +
+        '</div>' +
+        '<div style="display:grid;gap:16px;align-content:start">' +
+          '<section class="panel"><div class="panel-head"><h3>Assets by location</h3></div><div class="panel-body"><div class="bars">' +
+            byType.map(function (x) {
+              return '<div class="bar-row"><span>' + esc(x.t) + '</span><div class="bar-track"><div class="bar-fill" style="width:' + (x.n / maxType * 100) + '%"></div></div><b class="num" style="text-align:right">' + x.n + '</b></div>';
+            }).join('') +
+          '</div></div></section>' +
+          '<section class="panel"><div class="panel-head"><h3>Assets by status</h3></div><div class="panel-body"><div class="bars">' +
+            S.lists.statuses.map(function (st) {
+              const n = byStatus[st] || 0;
+              return '<div class="bar-row"><span>' + esc(st) + '</span><div class="bar-track"><div class="bar-fill" style="width:' + (n / maxStatus * 100) + '%;background:' + statusColors[st] + '"></div></div><b class="num" style="text-align:right">' + n + '</b></div>';
+            }).join('') +
+          '</div></div></section>' +
+          '<section class="panel"><div class="panel-head"><h3>Stores with the most assets</h3></div><div class="panel-body"><div class="feed">' +
+            (topStores.length ? topStores.map(function (x) {
+              return '<div class="feed-row" data-store="' + esc(x.s.id) + '" style="cursor:pointer;grid-template-columns:1fr auto"><div><b>' + esc(x.s.name) + '</b><div class="sub">' + esc(x.s.type) + (x.s.area ? ', ' + esc(x.s.area) : '') + '</div></div><b class="num">' + x.n + '</b></div>';
+            }).join('') : '<p class="muted" style="margin:0">No assets yet.</p>') +
+          '</div></div></section>' +
+        '</div>' +
+      '</div>';
+
+    $$('[data-stop]').forEach(function (a) { a.addEventListener('click', function (e) { e.stopPropagation(); }); });
+    $$('[data-asset]').forEach(function (el) { el.onclick = function () { openAsset(el.dataset.asset); }; });
+    $$('[data-store]').forEach(function (el) { el.onclick = function () { openStore(el.dataset.store); }; });
+    $$('[data-go]').forEach(function (el) {
+      el.onclick = function () {
+        if (el.dataset.go === 'regs') { S.f.assetTab = 'regs'; S.f.regStatus = 'Pending'; go('assets'); } else go(el.dataset.go);
+      };
+    });
+  }
+
+  /* ---------------- Store Directory ---------------- */
+
+  function renderStores() {
+    const f = S.f.stores;
+    header('Store Directory', S.stores.length + ' locations',
+      '<button class="btn" id="btn-copy-form">' + icon('link') + 'Copy form link</button>' +
+      (isAdmin() ? '<button class="btn btn-primary" id="btn-add-store">' + icon('plus') + 'Add store</button>' : ''));
+
+    $('#page').innerHTML =
+      '<div class="toolbar">' +
+        '<div class="search">' + icon('search') + '<input class="input" id="st-q" placeholder="Search name, code, area" value="' + esc(f.q) + '"></div>' +
+        '<div class="segmented" id="st-type">' + ['All'].concat(S.lists.storeTypes).map(function (t) {
+          return '<button data-v="' + esc(t) + '" class="' + (f.type === t ? 'on' : '') + '">' + esc(t) + '</button>';
+        }).join('') + '</div>' +
+        '<select class="select" id="st-status"><option value="Open">Open stores</option><option value="Closed">Closed stores</option><option value="">All stores</option></select>' +
+      '</div><div id="st-list"></div>';
+
+    $('#st-status').value = f.status;
+    $('#st-q').oninput = function () { f.q = this.value; renderStoreList(); };
+    $('#st-status').onchange = function () { f.status = this.value; renderStoreList(); };
+    $$('#st-type button').forEach(function (b) {
+      b.onclick = function () { f.type = b.dataset.v; $$('#st-type button').forEach(function (x) { x.classList.toggle('on', x === b); }); renderStoreList(); };
+    });
+    $('#btn-copy-form').onclick = function () { AM.copyText(formUrl()).then(function (ok) { AM.toast(ok ? 'Form link copied' : 'Copy failed. Open a store to copy its link.', ok ? '' : 'error'); }); };
+    if ($('#btn-add-store')) $('#btn-add-store').onclick = function () { editStore(null); };
+    renderStoreList();
+  }
+
+  function renderStoreList() {
+    const f = S.f.stores, q = norm(f.q);
+    const counts = {};
+    S.assets.forEach(function (a) { if (a.status !== 'Disposed') counts[a.store_id] = (counts[a.store_id] || 0) + 1; });
+    const list = S.stores.filter(function (s) {
+      return (f.type === 'All' || s.type === f.type) && (!f.status || s.status === f.status) &&
+        (!q || norm(s.name + ' ' + s.code + ' ' + s.area + ' ' + s.address + ' ' + s.contact_person).indexOf(q) >= 0);
+    }).sort(function (a, b) { return String(a.name).localeCompare(String(b.name)); });
+
+    if (!list.length) {
+      $('#st-list').innerHTML = '<div class="table-wrap"><div class="empty">' + icon('store') +
+        (S.stores.length ? '<h4>No stores match</h4><p>Try another search or filter.</p>'
+          : '<h4>Add your first store</h4><p>Stores, the Commissary, Head Office and storage areas all live here. Each one gets its own registration form link.</p>' +
+            (isAdmin() ? '<button class="btn btn-primary" id="st-empty-add">' + icon('plus') + 'Add store</button>' : '')) + '</div></div>';
+      if ($('#st-empty-add')) $('#st-empty-add').onclick = function () { editStore(null); };
+      return;
+    }
+    $('#st-list').innerHTML = '<div class="table-wrap"><table class="table"><thead><tr>' +
+      '<th>Code</th><th>Store</th><th>Type</th><th>Area</th><th>Contact</th><th style="text-align:right">Assets</th><th>Status</th></tr></thead><tbody>' +
+      list.map(function (s) {
+        return '<tr class="clickable" data-id="' + esc(s.id) + '"><td class="tag-code">' + esc(s.code) + '</td>' +
+          '<td><b>' + esc(s.name) + '</b>' + (s.address ? '<div class="sub">' + esc(s.address) + '</div>' : '') + '</td>' +
+          '<td><span class="pill plain brand">' + esc(s.type) + '</span></td><td>' + esc(s.area || '—') + '</td>' +
+          '<td>' + esc(s.contact_person || '—') + (s.contact_no ? '<div class="sub">' + esc(s.contact_no) + '</div>' : '') + '</td>' +
+          '<td class="num" style="text-align:right;font-weight:700">' + (counts[s.id] || 0) + '</td><td>' + pill(s.status) + '</td></tr>';
+      }).join('') + '</tbody></table></div>';
+    $$('#st-list tr[data-id]').forEach(function (tr) { tr.onclick = function () { openStore(tr.dataset.id); }; });
+  }
+
+  function openStore(id) {
+    const s = storeOf(id);
+    if (!s) return;
+    const assets = S.assets.filter(function (a) { return String(a.store_id) === String(s.id) && a.status !== 'Disposed'; });
+    const link = formUrl(s.code);
+    const m = AM.modal({
+      title: s.name, wide: true, noFocus: true,
+      subtitle: '<span class="tag-code">' + esc(s.code) + '</span>&nbsp; ' + pill(s.type) + ' ' + pill(s.status),
+      body:
+        '<dl class="facts" style="margin-top:0;grid-template-columns:repeat(3,1fr)">' +
+          fact('Area', s.area) + fact('Contact person', s.contact_person) + fact('Contact no.', s.contact_no) +
+          '<div style="grid-column:span 2"><dt>Address</dt><dd>' + esc(s.address || '—') + '</dd></div>' +
+          '<div><dt>Map pin</dt><dd>' + (AM.hasCoords(s.lat, s.lng) ? '<a href="' + AM.mapUrl(s.lat, s.lng) + '" target="_blank">Open in Google Maps</a>' : '<span class="dim">Not set</span>') + '</dd></div>' +
+        '</dl>' +
+        '<div class="section-title">Registration form link for this store</div>' +
+        '<div class="link-box"><input class="input" readonly value="' + esc(link) + '"><button class="btn" data-copy>' + icon('link') + 'Copy</button></div>' +
+        '<p class="note-line">Send this to the store. The form opens with their store already picked.</p>' +
+        '<div class="section-title">' + assets.length + (assets.length === 1 ? ' asset' : ' assets') + ' here</div>' +
+        (assets.length ? '<div class="table-wrap" style="max-height:320px;overflow:auto"><table class="table"><tbody>' + assets.map(function (a) {
+          return '<tr class="clickable" data-asset="' + esc(a.id) + '"><td style="width:52px">' + photoThumb(a.photo_url) + '</td><td class="tag-code">' + esc(a.tag_code) + '</td><td><b>' + esc(a.name) + '</b><div class="sub">' + esc(a.category || '') + '</div></td><td>' + pill(a.status) + '</td></tr>';
+        }).join('') + '</tbody></table></div>' : '<p class="muted" style="margin:0">No assets registered at this location yet.</p>'),
+      foot: (assets.length ? '<button class="btn" data-print>' + icon('print') + 'Print tags</button>' : '') +
+        (isAdmin() ? '<button class="btn" data-addasset>' + icon('plus') + 'Add asset here</button><button class="btn btn-primary" data-edit>' + icon('edit') + 'Edit store</button>' : '')
+    });
+    m.el.querySelector('[data-copy]').onclick = function () { AM.copyText(link).then(function (ok) { AM.toast(ok ? 'Link copied' : 'Select the link and copy it manually.', ok ? '' : 'error'); }); };
+    $$('[data-asset]', m.el).forEach(function (tr) { tr.onclick = function () { m.close(); openAsset(tr.dataset.asset); }; });
+    if (m.el.querySelector('[data-print]')) m.el.querySelector('[data-print]').onclick = function () { printTags(assets); };
+    if (m.el.querySelector('[data-edit]')) m.el.querySelector('[data-edit]').onclick = function () { m.close(); editStore(s); };
+    if (m.el.querySelector('[data-addasset]')) m.el.querySelector('[data-addasset]').onclick = function () { m.close(); editAsset(null, s.id); };
+  }
+
+  function editStore(s) {
+    const isNew = !s; s = s || { type: 'Cocopan', status: 'Open' };
+    const m = AM.modal({
+      title: isNew ? 'Add store' : 'Edit store',
+      body:
+        '<div class="grid-2">' +
+          '<div class="field"><label class="req" for="sf-code">Store code</label><input class="input" id="sf-code" value="' + esc(s.code || '') + '" placeholder="e.g. CCP-QC01"></div>' +
+          '<div class="field"><label class="req" for="sf-type">Type</label><select class="select" id="sf-type">' + S.lists.storeTypes.map(function (t) { return '<option>' + esc(t) + '</option>'; }).join('') + '</select></div>' +
+          '<div class="field span-2"><label class="req" for="sf-name">Store name</label><input class="input" id="sf-name" value="' + esc(s.name || '') + '"></div>' +
+          '<div class="field span-2"><label for="sf-address">Address</label><input class="input" id="sf-address" value="' + esc(s.address || '') + '"></div>' +
+          '<div class="field"><label for="sf-area">Area / cluster</label><input class="input" id="sf-area" value="' + esc(s.area || '') + '"></div>' +
+          '<div class="field"><label for="sf-status">Status</label><select class="select" id="sf-status"><option>Open</option><option>Closed</option></select></div>' +
+          '<div class="field"><label for="sf-person">Contact person</label><input class="input" id="sf-person" value="' + esc(s.contact_person || '') + '"></div>' +
+          '<div class="field"><label for="sf-phone">Contact no.</label><input class="input" id="sf-phone" value="' + esc(s.contact_no || '') + '"></div>' +
+          '<div class="field"><label for="sf-lat">Latitude</label><input class="input" id="sf-lat" inputmode="decimal" value="' + esc(s.lat) + '"></div>' +
+          '<div class="field"><label for="sf-lng">Longitude</label><input class="input" id="sf-lng" inputmode="decimal" value="' + esc(s.lng) + '"></div>' +
+          '<div class="span-2"><button type="button" class="btn btn-sm" id="sf-here">' + icon('pin') + 'Use my current location</button>' +
+          '<p class="note-line" style="margin-top:8px">The map pin lets the scanner suggest the nearest store when FM checks an asset in.</p></div>' +
+        '</div>',
+      foot: '<button class="btn" data-close>Cancel</button><button class="btn btn-primary" id="sf-save">' + (isNew ? 'Add store' : 'Save changes') + '</button>'
+    });
+    $('#sf-type', m.el).value = s.type; $('#sf-status', m.el).value = s.status || 'Open';
+    $('#sf-here', m.el).onclick = function () {
+      const b = this;
+      if (!navigator.geolocation) { AM.toast('This browser cannot share location.', 'error'); return; }
+      AM.busy(b, true, 'Finding you');
+      navigator.geolocation.getCurrentPosition(function (p) {
+        $('#sf-lat', m.el).value = p.coords.latitude.toFixed(6); $('#sf-lng', m.el).value = p.coords.longitude.toFixed(6);
+        AM.busy(b, false); AM.toast('Location filled in (±' + Math.round(p.coords.accuracy) + ' m)');
+      }, function (err) { AM.busy(b, false); AM.toast('Location is blocked: ' + err.message, 'error'); }, { enableHighAccuracy: true, timeout: 15000 });
+    };
+    $('#sf-save', m.el).onclick = function () {
+      const b = this;
+      const data = { id: s.id, code: $('#sf-code', m.el).value, name: $('#sf-name', m.el).value, type: $('#sf-type', m.el).value,
+        address: $('#sf-address', m.el).value, area: $('#sf-area', m.el).value, status: $('#sf-status', m.el).value,
+        contact_person: $('#sf-person', m.el).value, contact_no: $('#sf-phone', m.el).value,
+        lat: $('#sf-lat', m.el).value.trim(), lng: $('#sf-lng', m.el).value.trim() };
+      AM.busy(b, true, 'Saving');
+      AM.call('saveStore', AM.getToken(), data)
+        .then(function () { m.close(); return refresh(isNew ? 'Store added' : 'Store saved'); })
+        .catch(function (e) { AM.busy(b, false); handleErrorSoft(e); });
+    };
+  }
+
+  function handleErrorSoft(e) {
+    if (AM.isExpired(e)) { AM.clearToken(); $$('.modal-backdrop').forEach(function (x) { x.remove(); }); showLogin(); return; }
+    AM.toast(AM.errMsg(e), 'error');
+  }
+
+  /* ---------------- Assets ---------------- */
+
+  function renderAssets() {
+    const pending = S.regs.filter(function (r) { return r.status === 'Pending'; }).length;
+    const live = S.assets.filter(function (a) { return a.status !== 'Disposed'; }).length;
+    header('Assets', live.toLocaleString() + ' assets in use',
+      (isAdmin() ? '<button class="btn btn-primary" id="btn-add-asset">' + icon('plus') + 'Add asset</button>' : ''));
+    if ($('#btn-add-asset')) $('#btn-add-asset').onclick = function () { editAsset(null); };
+
+    $('#page').innerHTML =
+      '<div class="toolbar"><div class="segmented" id="as-tabs">' +
+        '<button data-v="all" class="' + (S.f.assetTab === 'all' ? 'on' : '') + '">All assets</button>' +
+        '<button data-v="regs" class="' + (S.f.assetTab === 'regs' ? 'on' : '') + '">Registrations' + (pending ? '<span class="count">' + pending + '</span>' : '') + '</button>' +
+      '</div></div><div id="as-body"></div>';
+    $$('#as-tabs button').forEach(function (b) {
+      b.onclick = function () { S.f.assetTab = b.dataset.v; renderAssets(); };
+    });
+    if (S.f.assetTab === 'regs') renderRegistrations(); else renderAssetTable();
+  }
+
+  function filteredAssets() {
+    const f = S.f.assets, q = norm(f.q);
+    return S.assets.filter(function (a) {
+      const s = storeOf(a.store_id);
+      if (f.status ? a.status !== f.status : a.status === 'Disposed') return false;
+      if (f.type && (!s || s.type !== f.type)) return false;
+      if (f.category && a.category !== f.category) return false;
+      if (f.store && String(a.store_id) !== f.store) return false;
+      if (q && norm([a.tag_code, a.name, a.category, a.brand_model, a.serial_no, s ? s.name : ''].join(' ')).indexOf(q) < 0) return false;
+      return true;
+    }).sort(function (a, b) { return String(b.created_at).localeCompare(String(a.created_at)); });
+  }
+
+  function renderAssetTable() {
+    const f = S.f.assets;
+    const cats = Array.from(new Set(AM.CATEGORIES.concat(S.assets.map(function (a) { return a.category; }).filter(Boolean))));
+    const stores = S.stores.slice().sort(function (a, b) { return String(a.name).localeCompare(String(b.name)); });
+    $('#as-body').innerHTML =
+      '<div class="toolbar">' +
+        '<div class="search">' + icon('search') + '<input class="input" id="af-q" placeholder="Search tag, name, serial, store" value="' + esc(f.q) + '"></div>' +
+        '<select class="select" id="af-status"><option value="">In use (not disposed)</option>' + S.lists.statuses.map(function (x) { return '<option>' + esc(x) + '</option>'; }).join('') + '</select>' +
+        '<select class="select" id="af-type"><option value="">All location types</option>' + S.lists.storeTypes.map(function (x) { return '<option>' + esc(x) + '</option>'; }).join('') + '</select>' +
+        '<select class="select" id="af-store"><option value="">All stores</option>' + stores.map(function (s) { return '<option value="' + esc(s.id) + '">' + esc(s.name) + '</option>'; }).join('') + '</select>' +
+        '<select class="select" id="af-cat"><option value="">All categories</option>' + cats.map(function (x) { return '<option>' + esc(x) + '</option>'; }).join('') + '</select>' +
+        '<span class="spacer"></span>' +
+        '<button class="btn" id="af-print">' + icon('print') + '<span id="af-print-label">Print tags</span></button>' +
+      '</div><div id="af-list"></div>';
+    $('#af-status').value = f.status; $('#af-type').value = f.type; $('#af-cat').value = f.category; $('#af-store').value = f.store;
+    $('#af-q').oninput = function () { f.q = this.value; S.assetLimit = 200; renderAssetRows(); };
+    [['af-status', 'status'], ['af-type', 'type'], ['af-cat', 'category'], ['af-store', 'store']].forEach(function (p) {
+      $('#' + p[0]).onchange = function () { f[p[1]] = this.value; S.assetLimit = 200; renderAssetRows(); };
+    });
+    $('#af-print').onclick = function () {
+      const list = S.selected.size ? S.assets.filter(function (a) { return S.selected.has(String(a.id)); }) : filteredAssets();
+      if (!list.length) { AM.toast('No assets to print.', 'info'); return; }
+      printTags(list);
+    };
+    renderAssetRows();
+  }
+
+  function renderAssetRows() {
+    const list = filteredAssets();
+    $('#af-print-label').textContent = S.selected.size ? 'Print ' + S.selected.size + ' selected' : 'Print tags (' + list.length + ')';
+    if (!list.length) {
+      $('#af-list').innerHTML = '<div class="table-wrap"><div class="empty">' + icon('box') +
+        (S.assets.length ? '<h4>No assets match</h4><p>Try another search or clear the filters.</p>'
+          : '<h4>No assets yet</h4><p>Approve a store registration or add an asset here. Each one gets a tag code and a QR label.</p>') + '</div></div>';
+      return;
+    }
+    const shown = list.slice(0, S.assetLimit);
+    const allOn = shown.every(function (a) { return S.selected.has(String(a.id)); });
+    $('#af-list').innerHTML = '<div class="table-wrap"><table class="table"><thead><tr>' +
+      '<th style="width:36px"><input type="checkbox" class="check" id="af-all" ' + (allOn ? 'checked' : '') + ' aria-label="Select all shown"></th>' +
+      '<th style="width:56px"></th><th>Tag code</th><th>Asset</th><th>Location</th><th>Status</th><th>Condition</th><th>Last scan</th></tr></thead><tbody>' +
+      shown.map(function (a) {
+        const s = storeOf(a.store_id);
+        return '<tr class="clickable" data-id="' + esc(a.id) + '">' +
+          '<td data-nocl><input type="checkbox" class="check" data-sel="' + esc(a.id) + '" ' + (S.selected.has(String(a.id)) ? 'checked' : '') + ' aria-label="Select ' + esc(a.tag_code) + '"></td>' +
+          '<td>' + photoThumb(a.photo_url) + '</td><td class="tag-code">' + esc(a.tag_code) + '</td>' +
+          '<td><b>' + esc(a.name) + '</b><div class="sub">' + esc([a.category, a.brand_model].filter(Boolean).join(', ') || '—') + '</div></td>' +
+          '<td>' + esc(s ? s.name : '—') + '<div class="sub">' + esc(s ? s.type : '') + '</div></td>' +
+          '<td>' + pill(a.status) + '</td><td>' + esc(a.condition || '—') + '</td>' +
+          '<td class="muted" style="white-space:nowrap">' + (a.last_scan_at ? AM.timeAgo(a.last_scan_at) : '—') + '</td></tr>';
+      }).join('') + '</tbody></table>' +
+      (list.length > shown.length ? '<div class="more-row"><button class="btn btn-sm" id="af-more">Show ' + Math.min(200, list.length - shown.length) + ' more of ' + (list.length - shown.length) + '</button></div>' : '') +
+      '</div>';
+    $$('#af-list tr[data-id]').forEach(function (tr) {
+      tr.onclick = function (e) { if (e.target.closest('[data-nocl]')) return; openAsset(tr.dataset.id); };
+    });
+    $$('#af-list [data-sel]').forEach(function (c) {
+      c.onchange = function () { if (c.checked) S.selected.add(c.dataset.sel); else S.selected.delete(c.dataset.sel); renderAssetRows(); };
+    });
+    $('#af-all').onchange = function () {
+      const on = this.checked;
+      shown.forEach(function (a) { if (on) S.selected.add(String(a.id)); else S.selected.delete(String(a.id)); });
+      renderAssetRows();
+    };
+    if ($('#af-more')) $('#af-more').onclick = function () { S.assetLimit += 200; renderAssetRows(); };
+  }
+
+  function photoThumb(url) {
+    return url ? '<img class="thumb" loading="lazy" src="' + esc(thumb(url, 120)) + '" alt="">'
+      : '<div class="thumb thumb-empty">' + icon('image') + '</div>';
+  }
+  function fact(label, value, raw) {
+    return '<div><dt>' + esc(label) + '</dt><dd>' + (raw ? value : esc(value === '' || value == null ? '—' : value)) + '</dd></div>';
+  }
+
+  function openAsset(id) {
+    const a = S.assets.find(function (x) { return String(x.id) === String(id); });
+    if (!a) { AM.toast('That asset is no longer in the list. Refresh to update.', 'info'); return; }
+    const s = storeOf(a.store_id);
+    const reg = a.registration_id ? S.regs.find(function (r) { return String(r.id) === String(a.registration_id); }) : null;
+    const m = AM.modal({
+      title: a.name, wide: true, noFocus: true,
+      subtitle: '<span class="tag-code">' + esc(a.tag_code) + '</span>&nbsp; ' + pill(a.status),
+      body:
+        '<div class="detail"><div>' +
+          (a.photo_url ? '<a href="' + esc(thumb(a.photo_url, 1600)) + '" target="_blank"><img class="photo-lg" src="' + esc(thumb(a.photo_url, 800)) + '" alt="Photo of ' + esc(a.name) + '"></a>'
+            : '<div class="photo-lg empty-photo">' + icon('image') + '</div>') +
+          '<div style="margin-top:16px">' + AM.tagLabel(a, s, scanUrl(a.tag_code)) + '</div>' +
+        '</div><div>' +
+          '<dl class="facts" style="margin-top:0">' +
+            fact('Location', s ? s.name + ' (' + s.type + ')' : '—') + fact('Category', a.category) +
+            fact('Brand / model', a.brand_model) + fact('Serial no.', a.serial_no) +
+            fact('Condition', a.condition) + fact('Acquired', a.acquired_date ? AM.fmtDate(a.acquired_date) : '') +
+            fact('Cost', AM.peso(a.cost)) + fact('Registered through', reg ? reg.ref_no : 'Web app') +
+            fact('Last scan', a.last_scan_at ? AM.fmtDate(a.last_scan_at, true) + (AM.hasCoords(a.last_lat, a.last_lng) ? ' · <a href="' + AM.mapUrl(a.last_lat, a.last_lng) + '" target="_blank">Map</a>' : '') : '—', !!a.last_scan_at) +
+            fact('Added', AM.fmtDate(a.created_at)) +
+            (a.notes ? '<div style="grid-column:1/-1"><dt>Notes</dt><dd>' + esc(a.notes) + '</dd></div>' : '') +
+          '</dl>' +
+          '<div class="section-title">History</div><div id="ad-history"><div class="loading-block" style="padding:20px 0"><span class="spinner"></span></div></div>' +
+        '</div></div>',
+      foot: '<a class="btn" href="' + esc(scanUrl(a.tag_code)) + '" target="_blank">' + icon('scan') + 'Open in scanner</a>' +
+        '<button class="btn" data-print>' + icon('print') + 'Print tag</button>' +
+        (isAdmin() ? '<button class="btn btn-primary" data-edit>' + icon('edit') + 'Edit asset</button>' : '')
+    });
+    m.el.querySelector('[data-print]').onclick = function () { printTags([a]); };
+    if (m.el.querySelector('[data-edit]')) m.el.querySelector('[data-edit]').onclick = function () { m.close(); editAsset(a); };
+    AM.call('getAssetHistory', AM.getToken(), a.id).then(function (rows) {
+      const box = m.el.querySelector('#ad-history'); if (!box) return;
+      box.innerHTML = rows.length ? '<div class="timeline">' + rows.map(function (h) {
+        const hs = storeOf(h.store_id);
+        return '<div class="tl-row"><div class="tl-dot" style="background:' + ({ 'Checked In': 'var(--ok)', 'Checked Out': 'var(--warn)', 'Updated': 'var(--info)' }[h.action] || 'var(--orange)') + '"></div><div>' +
+          '<b>' + esc(h.action) + '</b>' + (hs ? ' <span class="muted">at ' + esc(hs.name) + '</span>' : '') +
+          (h.details ? '<div style="font-size:13px">' + esc(h.details) + '</div>' : '') +
+          '<div class="sub">' + AM.fmtDate(h.created_at, true) + (h.actor ? ', ' + esc(h.actor) : '') +
+          (AM.hasCoords(h.lat, h.lng) ? ' · <a href="' + AM.mapUrl(h.lat, h.lng) + '" target="_blank">Map</a>' : '') + '</div></div></div>';
+      }).join('') + '</div>' : '<p class="muted" style="margin:0">No history yet.</p>';
+    }).catch(function (e) { const box = m.el.querySelector('#ad-history'); if (box) box.innerHTML = '<p class="muted">' + esc(AM.errMsg(e)) + '</p>'; });
+  }
+
+  function editAsset(a, presetStore) {
+    const isNew = !a; a = a || { status: 'Active', condition: 'Good', store_id: presetStore || '' };
+    let newPhoto = null;
+    const stores = S.stores.slice().sort(function (x, y) { return String(x.name).localeCompare(String(y.name)); });
+    const cats = Array.from(new Set(AM.CATEGORIES.concat(a.category ? [a.category] : [])));
+    const m = AM.modal({
+      title: isNew ? 'Add asset' : 'Edit ' + a.tag_code,
+      subtitle: isNew ? 'A tag code is created when you save.' : '',
+      body:
+        '<div class="photo-pick" style="margin-bottom:16px">' +
+          (a.photo_url ? '<img id="ef-prev" src="' + esc(thumb(a.photo_url, 300)) + '" alt="">' : '<div class="ph" id="ef-prev">' + icon('camera') + '</div>') +
+          '<div><label class="btn btn-sm" for="ef-photo">' + icon('image') + (a.photo_url ? 'Change photo' : 'Add photo') + '</label>' +
+          '<input type="file" id="ef-photo" accept="image/*" hidden><p class="note-line" style="margin-top:8px">A clear photo of the item and its sticker or nameplate.</p></div>' +
+        '</div>' +
+        '<div class="grid-2">' +
+          '<div class="field span-2"><label class="req" for="ef-name">Asset name</label><input class="input" id="ef-name" value="' + esc(a.name || '') + '" placeholder="e.g. Upright chiller, 2-door"></div>' +
+          '<div class="field"><label for="ef-cat">Category</label><select class="select" id="ef-cat"><option value="">Choose</option>' + cats.map(function (c) { return '<option>' + esc(c) + '</option>'; }).join('') + '</select></div>' +
+          '<div class="field"><label for="ef-brand">Brand / model</label><input class="input" id="ef-brand" value="' + esc(a.brand_model || '') + '"></div>' +
+          '<div class="field"><label for="ef-serial">Serial no.</label><input class="input" id="ef-serial" value="' + esc(a.serial_no || '') + '"></div>' +
+          '<div class="field"><label class="req" for="ef-store">Location</label><select class="select" id="ef-store"><option value="">Choose</option>' +
+            S.lists.storeTypes.map(function (t) {
+              const g = stores.filter(function (s) { return s.type === t; });
+              return g.length ? '<optgroup label="' + esc(t) + '">' + g.map(function (s) { return '<option value="' + esc(s.id) + '">' + esc(s.name) + (s.status === 'Closed' ? ' (closed)' : '') + '</option>'; }).join('') + '</optgroup>' : '';
+            }).join('') + '</select></div>' +
+          '<div class="field"><label for="ef-status">Status</label><select class="select" id="ef-status">' + S.lists.statuses.map(function (x) { return '<option>' + esc(x) + '</option>'; }).join('') + '</select></div>' +
+          '<div class="field"><label for="ef-cond">Condition</label><select class="select" id="ef-cond">' + S.lists.conditions.map(function (x) { return '<option>' + esc(x) + '</option>'; }).join('') + '</select></div>' +
+          '<div class="field"><label for="ef-date">Date acquired</label><input class="input" type="date" id="ef-date" value="' + esc(a.acquired_date ? String(a.acquired_date).slice(0, 10) : '') + '"></div>' +
+          '<div class="field"><label for="ef-cost">Cost (₱)</label><input class="input" id="ef-cost" inputmode="decimal" value="' + esc(a.cost) + '"></div>' +
+          '<div class="field span-2"><label for="ef-notes">Notes</label><textarea class="textarea" id="ef-notes">' + esc(a.notes || '') + '</textarea></div>' +
+        '</div>',
+      foot: '<button class="btn" data-close>Cancel</button><button class="btn btn-primary" id="ef-save">' + (isNew ? 'Add asset' : 'Save changes') + '</button>'
+    });
+    $('#ef-cat', m.el).value = a.category || ''; $('#ef-store', m.el).value = String(a.store_id || '');
+    $('#ef-status', m.el).value = a.status; $('#ef-cond', m.el).value = a.condition || 'Good';
+    $('#ef-photo', m.el).onchange = function () {
+      const file = this.files[0]; if (!file) return;
+      AM.compressImage(file).then(function (data) {
+        newPhoto = data;
+        const prev = $('#ef-prev', m.el);
+        const img = document.createElement('img'); img.id = 'ef-prev'; img.src = data; img.alt = '';
+        prev.replaceWith(img);
+      }).catch(function (e) { AM.toast(AM.errMsg(e), 'error'); });
+    };
+    $('#ef-save', m.el).onclick = function () {
+      const b = this;
+      const data = { id: a.id, name: $('#ef-name', m.el).value, category: $('#ef-cat', m.el).value, brand_model: $('#ef-brand', m.el).value,
+        serial_no: $('#ef-serial', m.el).value, store_id: $('#ef-store', m.el).value, status: $('#ef-status', m.el).value,
+        condition: $('#ef-cond', m.el).value, acquired_date: $('#ef-date', m.el).value, cost: $('#ef-cost', m.el).value.replace(/[₱,\s]/g, ''),
+        notes: $('#ef-notes', m.el).value, photo_url: a.photo_url || '' };
+      if (!data.name.trim()) { AM.toast('Enter the asset name.', 'error'); return; }
+      if (!data.store_id) { AM.toast('Pick the location of this asset.', 'error'); return; }
+      AM.busy(b, true, newPhoto ? 'Uploading photo' : 'Saving');
+      const up = newPhoto ? AM.call('uploadPhoto', newPhoto, AM.getToken()) : Promise.resolve(data.photo_url);
+      up.then(function (url) { data.photo_url = url; return AM.call('saveAsset', AM.getToken(), data); })
+        .then(function (saved) {
+          m.close();
+          return refresh(isNew ? 'Asset added as ' + saved.tag_code : 'Asset saved').then(function () { openAsset(saved.id); });
+        })
+        .catch(function (e) { AM.busy(b, false); handleErrorSoft(e); });
+    };
+  }
+
+  /* ---------------- Registrations ---------------- */
+
+  function renderRegistrations() {
+    const st = S.f.regStatus;
+    const counts = { Pending: 0, Approved: 0, Rejected: 0 };
+    S.regs.forEach(function (r) { counts[r.status] = (counts[r.status] || 0) + 1; });
+    $('#as-body').innerHTML =
+      '<div class="toolbar"><div class="segmented" id="rg-st">' + ['Pending', 'Approved', 'Rejected', 'All'].map(function (x) {
+        return '<button data-v="' + x + '" class="' + (st === x ? 'on' : '') + '">' + x + (x !== 'All' ? ' <span class="dim num">' + (counts[x] || 0) + '</span>' : '') + '</button>';
+      }).join('') + '</div><span class="spacer"></span>' +
+      '<button class="btn" id="rg-copy">' + icon('link') + 'Copy form link</button></div><div id="rg-list" class="reg-list"></div>';
+    $$('#rg-st button').forEach(function (b) { b.onclick = function () { S.f.regStatus = b.dataset.v; renderRegistrations(); }; });
+    $('#rg-copy').onclick = function () { AM.copyText(formUrl()).then(function (ok) { AM.toast(ok ? 'Form link copied' : 'Copy failed', ok ? '' : 'error'); }); };
+
+    const list = S.regs.filter(function (r) { return st === 'All' || r.status === st; });
+    if (!list.length) {
+      $('#rg-list').innerHTML = '<div class="table-wrap"><div class="empty">' + icon('form') +
+        '<h4>' + (st === 'Pending' ? 'Nothing waiting for approval' : 'No ' + st.toLowerCase() + ' registrations') + '</h4>' +
+        '<p>Stores send registrations through the Asset Registration Form. Copy the form link and share it with your stores.</p></div></div>';
+      return;
+    }
+    $('#rg-list').innerHTML = list.map(function (r) {
+      const s = storeOf(r.store_id);
+      const qty = r.items.reduce(function (n, it) { return n + (Number(it.quantity) || 1); }, 0);
+      return '<article class="reg-card"><div class="reg-head"><div>' +
+          '<h3>' + esc(s ? s.name : 'Unknown store') + ' ' + pill(r.status) + '</h3>' +
+          '<p><span class="tag-code">' + esc(r.ref_no) + '</span>, sent by ' + esc(r.submitted_by) + (r.contact_no ? ' (' + esc(r.contact_no) + ')' : '') + ' on ' + AM.fmtDate(r.created_at, true) + '</p>' +
+          (r.status !== 'Pending' ? '<p>' + esc(r.status) + ' by ' + esc(r.reviewed_by || '—') + ' on ' + AM.fmtDate(r.reviewed_at, true) + (r.remarks ? '. Reason: ' + esc(r.remarks) : '') + '</p>' : '') +
+        '</div><div class="qty">' + qty + ' <span class="muted" style="font-size:13px;font-weight:500">' + (qty === 1 ? 'asset' : 'assets') + '</span></div></div>' +
+        '<div class="reg-items">' + r.items.map(function (it) {
+          return '<div class="reg-item">' +
+            (it.photo_url ? '<a href="' + esc(thumb(it.photo_url, 1600)) + '" target="_blank"><img loading="lazy" src="' + esc(thumb(it.photo_url, 160)) + '" alt="Photo of ' + esc(it.name) + '"></a>' : '<div class="thumb thumb-empty">' + icon('image') + '</div>') +
+            '<div style="min-width:0"><b>' + esc(it.name) + '</b><div class="sub">' + esc([it.category, it.brand_model, it.serial_no ? 'S/N ' + it.serial_no : '', it.condition].filter(Boolean).join(', ')) + '</div>' +
+            (it.notes ? '<div style="font-size:12.5px;margin-top:2px">' + esc(it.notes) + '</div>' : '') + '</div>' +
+            '<div class="qty">×' + esc(it.quantity) + '</div></div>';
+        }).join('') + '</div>' +
+        ((r.status === 'Pending' && isAdmin()) ? '<div class="reg-foot"><button class="btn btn-danger" data-reject="' + esc(r.id) + '">Reject</button><button class="btn btn-primary" data-approve="' + esc(r.id) + '" data-qty="' + qty + '">' + icon('check') + 'Approve and create ' + qty + (qty === 1 ? ' asset' : ' assets') + '</button></div>' : '') +
+        (r.status === 'Approved' ? '<div class="reg-foot"><button class="btn" data-printreg="' + esc(r.id) + '">' + icon('print') + 'Print tags</button></div>' : '') +
+      '</article>';
+    }).join('');
+
+    $$('[data-approve]').forEach(function (b) {
+      b.onclick = function () {
+        const id = b.dataset.approve, qty = b.dataset.qty;
+        AM.confirmBox('Approve registration?', 'This creates ' + qty + ' tagged ' + (qty === '1' ? 'asset' : 'assets') + ' at this store. You can print the QR tags right after.', 'Approve').then(function (ok) {
+          if (!ok) return;
+          AM.busy(b, true, 'Creating assets');
+          AM.call('approveRegistration', AM.getToken(), id).then(function (n) {
+            return refresh(n + (n === 1 ? ' asset' : ' assets') + ' created').then(function () {
+              const made = S.assets.filter(function (a) { return String(a.registration_id) === String(id); });
+              AM.confirmBox('Print the tags now?', made.length + ' QR tags are ready for this store.', 'Print tags').then(function (yes) { if (yes) printTags(made); });
+            });
+          }).catch(function (e) { AM.busy(b, false); handleErrorSoft(e); });
+        });
+      };
+    });
+    $$('[data-reject]').forEach(function (b) {
+      b.onclick = function () {
+        const id = b.dataset.reject;
+        const m = AM.modal({ title: 'Reject registration',
+          body: '<div class="field"><label for="rj-why">Reason (the store sees this when you follow up)</label><textarea class="textarea" id="rj-why" placeholder="e.g. Photos are unclear, please resend"></textarea></div>',
+          foot: '<button class="btn" data-close>Cancel</button><button class="btn btn-danger" id="rj-ok">Reject</button>' });
+        $('#rj-ok', m.el).onclick = function () {
+          const bb = this; AM.busy(bb, true);
+          AM.call('rejectRegistration', AM.getToken(), id, $('#rj-why', m.el).value)
+            .then(function () { m.close(); return refresh('Registration rejected'); })
+            .catch(function (e) { AM.busy(bb, false); handleErrorSoft(e); });
+        };
+      };
+    });
+    $$('[data-printreg]').forEach(function (b) {
+      b.onclick = function () {
+        const made = S.assets.filter(function (a) { return String(a.registration_id) === String(b.dataset.printreg); });
+        if (made.length) printTags(made); else AM.toast('These assets were removed or moved.', 'info');
+      };
+    });
+  }
+
+  /* ---------------- History ---------------- */
+
+  function renderHistory() {
+    const f = S.f.history;
+    header('History', 'Every registration, edit, check-in and check-out.');
+    $('#page').innerHTML =
+      '<div class="toolbar">' +
+        '<div class="search">' + icon('search') + '<input class="input" id="hf-q" placeholder="Search tag, asset, person" value="' + esc(f.q) + '"></div>' +
+        '<select class="select" id="hf-action"><option value="">All activity</option><option>Checked In</option><option>Checked Out</option><option>Registered</option><option>Updated</option></select>' +
+        '<select class="select" id="hf-type"><option value="">All location types</option>' + S.lists.storeTypes.map(function (x) { return '<option>' + esc(x) + '</option>'; }).join('') + '</select>' +
+        '<input class="input" type="date" id="hf-from" style="width:auto" value="' + esc(f.from) + '" aria-label="From date">' +
+        '<input class="input" type="date" id="hf-to" style="width:auto" value="' + esc(f.to) + '" aria-label="To date">' +
+      '</div><div id="hf-list"></div>' +
+      (S.historyTotal > S.history.length ? '<p class="note-line">Showing the latest ' + S.history.length.toLocaleString() + ' of ' + S.historyTotal.toLocaleString() + ' records. The full log is in the History sheet, and each asset shows its complete history.</p>' : '');
+    $('#hf-action').value = f.action; $('#hf-type').value = f.type;
+    $('#hf-q').oninput = function () { f.q = this.value; S.historyLimit = 300; renderHistoryRows(); };
+    [['hf-action', 'action'], ['hf-type', 'type'], ['hf-from', 'from'], ['hf-to', 'to']].forEach(function (p) {
+      $('#' + p[0]).onchange = function () { f[p[1]] = this.value; S.historyLimit = 300; renderHistoryRows(); };
+    });
+    renderHistoryRows();
+  }
+
+  function renderHistoryRows() {
+    const f = S.f.history, q = norm(f.q);
+    const assetById = {};
+    S.assets.forEach(function (a) { assetById[a.id] = a; });
+    const from = f.from ? new Date(f.from + 'T00:00:00+08:00') : null;
+    const to = f.to ? new Date(f.to + 'T23:59:59+08:00') : null;
+    const list = S.history.filter(function (h) {
+      const a = assetById[h.asset_id] || {}, s = storeOf(h.store_id), d = new Date(h.created_at);
+      if (f.action && h.action !== f.action) return false;
+      if (f.type && (!s || s.type !== f.type)) return false;
+      if (from && d < from) return false;
+      if (to && d > to) return false;
+      if (q && norm([a.tag_code, a.name, h.actor, h.details, s ? s.name : ''].join(' ')).indexOf(q) < 0) return false;
+      return true;
+    });
+    if (!list.length) {
+      $('#hf-list').innerHTML = '<div class="table-wrap"><div class="empty">' + icon('clock') + '<h4>No activity found</h4><p>' +
+        (S.history.length ? 'Try a wider date range or clear the filters.' : 'Activity appears here once assets are registered and scanned.') + '</p></div></div>';
+      return;
+    }
+    const shown = list.slice(0, S.historyLimit);
+    $('#hf-list').innerHTML = '<div class="table-wrap"><table class="table"><thead><tr><th>When</th><th>Activity</th><th>Asset</th><th>Location</th><th>Details</th><th>By</th><th>GPS</th></tr></thead><tbody>' +
+      shown.map(function (h) {
+        const a = assetById[h.asset_id], s = storeOf(h.store_id);
+        return '<tr class="clickable" data-asset="' + esc(h.asset_id) + '"><td style="white-space:nowrap">' + AM.fmtDate(h.created_at, true) + '</td><td>' + pill(h.action) + '</td>' +
+          '<td>' + (a ? '<span class="tag-code">' + esc(a.tag_code) + '</span><div class="sub">' + esc(a.name) + '</div>' : '<span class="dim">Removed asset</span>') + '</td>' +
+          '<td>' + esc(s ? s.name : '—') + '</td><td style="max-width:280px">' + esc(h.details || '—') + '</td><td>' + esc(h.actor || '—') + '</td>' +
+          '<td data-nocl>' + (AM.hasCoords(h.lat, h.lng) ? '<a href="' + AM.mapUrl(h.lat, h.lng) + '" target="_blank">' + Number(h.lat).toFixed(4) + ', ' + Number(h.lng).toFixed(4) + '</a>' : '<span class="dim">—</span>') + '</td></tr>';
+      }).join('') + '</tbody></table>' +
+      (list.length > shown.length ? '<div class="more-row"><button class="btn btn-sm" id="hf-more">Show more (' + (list.length - shown.length) + ' left)</button></div>' : '') + '</div>';
+    $$('#hf-list tr[data-asset]').forEach(function (tr) {
+      tr.onclick = function (e) { if (e.target.closest('[data-nocl]')) return; openAsset(tr.dataset.asset); };
+    });
+    if ($('#hf-more')) $('#hf-more').onclick = function () { S.historyLimit += 300; renderHistoryRows(); };
+  }
+
+  /* ---------------- Users ---------------- */
+
+  function renderUsers() {
+    if (!isAdmin()) { go('dashboard'); return; }
+    header('Users', 'Who can sign in to the web app and the scanner.',
+      '<button class="btn btn-primary" id="btn-add-user">' + icon('plus') + 'Add user</button>');
+    $('#btn-add-user').onclick = function () { editUser(null); };
+    $('#page').innerHTML = '<div class="table-wrap"><table class="table"><thead><tr><th>Name</th><th>Username</th><th>Role</th><th>Access</th><th></th></tr></thead><tbody>' +
+      S.users.map(function (u) {
+        return '<tr><td><b>' + esc(u.full_name) + '</b></td><td>' + esc(u.username) + '</td><td>' + esc(ROLE_LABEL[u.role] || u.role) + '</td>' +
+          '<td>' + (u.active ? '<span class="pill ok">Active</span>' : '<span class="pill off">Disabled</span>') + '</td>' +
+          '<td style="text-align:right"><button class="btn btn-sm" data-user="' + esc(u.id) + '">' + icon('edit') + 'Edit</button></td></tr>';
+      }).join('') + '</tbody></table></div>' +
+      '<p class="note-line">Admin: full access. Facility &amp; Management: uses the Asset Scanner and can view the web app. Viewer: can only view.</p>';
+    $$('[data-user]').forEach(function (b) {
+      b.onclick = function () { editUser(S.users.find(function (u) { return String(u.id) === b.dataset.user; })); };
+    });
+  }
+
+  function editUser(u) {
+    const isNew = !u; u = u || { role: 'fm', active: true };
+    const m = AM.modal({
+      title: isNew ? 'Add user' : 'Edit ' + u.full_name,
+      body: '<div class="grid-2">' +
+        '<div class="field span-2"><label class="req" for="uf-name">Full name</label><input class="input" id="uf-name" value="' + esc(u.full_name || '') + '"></div>' +
+        '<div class="field"><label class="req" for="uf-user">Username</label><input class="input" id="uf-user" autocapitalize="none" value="' + esc(u.username || '') + '" ' + (isNew ? '' : 'disabled') + '></div>' +
+        '<div class="field"><label class="req" for="uf-role">Role</label><select class="select" id="uf-role"><option value="admin">Admin</option><option value="fm">Facility &amp; Management</option><option value="viewer">Viewer</option></select></div>' +
+        '<div class="field"><label ' + (isNew ? 'class="req"' : '') + ' for="uf-pass">' + (isNew ? 'Password' : 'New password') + '</label><input class="input" id="uf-pass" type="text" autocomplete="new-password" placeholder="' + (isNew ? 'At least 6 characters' : 'Leave blank to keep') + '"></div>' +
+        '<div class="field"><label for="uf-active">Access</label><select class="select" id="uf-active"><option value="1">Active</option><option value="0">Disabled</option></select></div>' +
+        '</div>',
+      foot: '<button class="btn" data-close>Cancel</button><button class="btn btn-primary" id="uf-save">' + (isNew ? 'Add user' : 'Save changes') + '</button>'
+    });
+    $('#uf-role', m.el).value = u.role; $('#uf-active', m.el).value = u.active ? '1' : '0';
+    $('#uf-save', m.el).onclick = function () {
+      const b = this; AM.busy(b, true, 'Saving');
+      AM.call('saveUser', AM.getToken(), { id: u.id, full_name: $('#uf-name', m.el).value, username: $('#uf-user', m.el).value,
+        role: $('#uf-role', m.el).value, password: $('#uf-pass', m.el).value, active: $('#uf-active', m.el).value === '1' })
+        .then(function (users) { S.users = users; m.close(); renderUsers(); AM.toast(isNew ? 'User added' : 'User saved'); })
+        .catch(function (e) { AM.busy(b, false); handleErrorSoft(e); });
+    };
+  }
+
+  function changePassword() {
+    const m = AM.modal({
+      title: 'Change password',
+      body: '<div style="display:grid;gap:14px"><div class="field"><label for="cp-old">Current password</label><input class="input" type="password" id="cp-old" autocomplete="current-password"></div>' +
+        '<div class="field"><label for="cp-new">New password</label><input class="input" type="password" id="cp-new" autocomplete="new-password"><span class="hint">At least 6 characters.</span></div></div>',
+      foot: '<button class="btn" data-close>Cancel</button><button class="btn btn-primary" id="cp-save">Change password</button>'
+    });
+    $('#cp-save', m.el).onclick = function () {
+      const b = this; AM.busy(b, true);
+      AM.call('changePassword', AM.getToken(), $('#cp-old', m.el).value, $('#cp-new', m.el).value)
+        .then(function () { m.close(); AM.toast('Password changed'); })
+        .catch(function (e) { AM.busy(b, false); handleErrorSoft(e); });
+    };
+  }
+
+  /* ---------------- Printing ---------------- */
+
+  function printTags(list) {
+    const area = $('#print-area');
+    area.innerHTML = list.map(function (a) { return AM.tagLabel(a, storeOf(a.store_id), scanUrl(a.tag_code)); }).join('');
+    setTimeout(function () { window.print(); }, 150);
+  }
+
+  /* ---------------- Start ---------------- */
+
+  $('#lnk-form').href = formUrl(); $('#lnk-form').innerHTML = icon('form') + 'Registration form';
+  $('#lnk-scan').href = scanUrl(); $('#lnk-scan').innerHTML = icon('scan') + 'Asset scanner';
+  $('#btn-pw').innerHTML = icon('key'); $('#btn-pw').onclick = changePassword;
+  $('#btn-logout').innerHTML = icon('logout');
+  $('#btn-logout').onclick = function () {
+    AM.call('logout', AM.getToken()).catch(function () {});
+    AM.clearToken(); S.page = 'dashboard'; showLogin();
+  };
+
+  if (AM.getToken()) safe(load()); else showLogin();
+})();
+</script>
+
+</body>
+</html>
