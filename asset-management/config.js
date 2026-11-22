@@ -4,7 +4,7 @@
  *  Paste your Apps Script web app link (the one ending in /exec)
  *  between the quotes below. All three pages use this one setting.
  * ===================================================================== */
-window.AM_API_URL = 'https://script.google.com/macros/s/AKfycbzZRiMsMPk4c6Iy7EP2cbN7d8CZmFbp-AQeJh9gUR27erMjge67KeYt0Al1ZN58Wr9v/exec';
+window.AM_API_URL = 'https://script.google.com/macros/s/AKfycbxfGTcyEqoibbSUo22TpcRPn60kiBM5xBdC1ZUH5v0hfUxdtJfOeRkOWAjpKMMPAuxttQ/exec';
 
 
 /* ---- Do not edit below this line ---- */
